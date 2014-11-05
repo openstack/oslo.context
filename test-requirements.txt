@@ -2,9 +2,10 @@
 # of appearance. Changing the order has an impact on the overall integration
 # process, which may cause wedges in the gate later.
 
-hacking>=0.5.6,<0.8
-oslotest
+hacking>=0.9.1,<0.10
+oslotest>=1.2.0  # Apache-2.0
+coverage>=3.6
 
 # These are needed for docs generation
-oslosphinx
-sphinx>=1.1.2,!=1.2.0,<1.3
+oslosphinx>=2.2.0  # Apache-2.0
+sphinx>=1.1.2,!=1.2.0,!=1.3b1,<1.3
