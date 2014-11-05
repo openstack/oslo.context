@@ -15,7 +15,7 @@
 
 from oslotest import base as test_base
 
-from openstack.common import context
+from oslo.context import context
 
 
 class ContextTest(test_base.BaseTestCase):
