@@ -2,19 +2,27 @@
  oslo.context
 ==============
 
-oslo.context library
+Welcome to oslo.context's documentation!
+========================================
 
-Contents
-========
+Contents:
 
 .. toctree::
    :maxdepth: 2
 
+   readme
    installation
-   api
    usage
    contributing
    history
+
+Code Documentation
+==================
+
+.. toctree::
+   :maxdepth: 1
+
+   api/autoindex
 
 Indices and tables
 ==================
@@ -22,4 +30,3 @@ Indices and tables
 * :ref:`genindex`
 * :ref:`modindex`
 * :ref:`search`
-
