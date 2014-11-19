@@ -94,6 +94,7 @@ class RequestContext(object):
 
 
 def get_admin_context(show_deleted=False):
+    """Create an administrator context."""
     context = RequestContext(None,
                              tenant=None,
                              is_admin=True,
