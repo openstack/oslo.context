@@ -20,9 +20,46 @@ from oslo_context import context
 
 class ContextTest(test_base.BaseTestCase):
 
+    def setUp(self):
+        super(ContextTest, self).setUp()
+        self.addCleanup(self._remove_cached_context)
+
+    def _remove_cached_context(self):
+        """Remove the thread-local context stored in the module."""
+        try:
+            del context._request_store.context
+        except AttributeError:
+            pass
+
     def test_context(self):
         ctx = context.RequestContext()
         self.assertTrue(ctx)
+
+    def test_store_when_no_overwrite(self):
+        # If no context exists we store one even if overwrite is false
+        # (since we are not overwriting anything).
+        ctx = context.RequestContext(overwrite=False)
+        self.assertIs(context.get_current(), ctx)
+
+    def test_no_overwrite(self):
+        # If there is already a context in the cache a new one will
+        # not overwrite it if overwrite=False.
+        ctx1 = context.RequestContext(overwrite=True)
+        context.RequestContext(overwrite=False)
+        self.assertIs(context.get_current(), ctx1)
+
+    def test_admin_no_overwrite(self):
+        # If there is already a context in the cache creating an admin
+        # context will not overwrite it.
+        ctx1 = context.RequestContext(overwrite=True)
+        context.get_admin_context()
+        self.assertIs(context.get_current(), ctx1)
+
+    def test_store_current(self):
+        # By default a new context is stored.
+        self._remove_cached_context()
+        ctx = context.RequestContext()
+        self.assertIs(context.get_current(), ctx)
 
     def test_admin_context_show_deleted_flag_default(self):
         ctx = context.get_admin_context()

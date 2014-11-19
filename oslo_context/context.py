@@ -21,7 +21,11 @@ context or provide additional information in their specific WSGI pipeline.
 """
 
 import itertools
+import threading
 import uuid
+
+
+_request_store = threading.local()
 
 
 def generate_request_id():
@@ -41,7 +45,12 @@ class RequestContext(object):
     def __init__(self, auth_token=None, user=None, tenant=None, domain=None,
                  user_domain=None, project_domain=None, is_admin=False,
                  read_only=False, show_deleted=False, request_id=None,
-                 resource_uuid=None):
+                 resource_uuid=None, overwrite=True):
+        """Initialize the RequestContext
+
+        :param overwrite: Set to False to ensure that the greenthread local
+                          copy of the index is not overwritten.
+        """
         self.auth_token = auth_token
         self.user = user
         self.tenant = tenant
@@ -55,6 +64,11 @@ class RequestContext(object):
         if not request_id:
             request_id = generate_request_id()
         self.request_id = request_id
+        if overwrite or not get_current():
+            self.update_store()
+
+    def update_store(self):
+        _request_store.context = self
 
     def to_dict(self):
         user_idt = (
@@ -98,7 +112,8 @@ def get_admin_context(show_deleted=False):
     context = RequestContext(None,
                              tenant=None,
                              is_admin=True,
-                             show_deleted=show_deleted)
+                             show_deleted=show_deleted,
+                             overwrite=False)
     return context
 
 
@@ -125,3 +140,11 @@ def is_user_context(context):
     if not context.user_id or not context.project_id:
         return False
     return True
+
+
+def get_current():
+    """Return this thread's current context
+
+    If no context is set, returns None
+    """
+    return getattr(_request_store, 'context', None)
