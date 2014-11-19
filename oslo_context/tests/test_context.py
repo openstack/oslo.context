@@ -40,7 +40,7 @@ class ContextTest(test_base.BaseTestCase):
             "read_only": True,
             "show_deleted": True,
             "request_id": "request1",
-            "instance_uuid": "instance1",
+            "resource_uuid": "instance1",
             "extra_data": "foo"
         }
         ctx = context.RequestContext.from_dict(dct)
@@ -54,4 +54,4 @@ class ContextTest(test_base.BaseTestCase):
         self.assertTrue(ctx.read_only)
         self.assertTrue(ctx.show_deleted)
         self.assertEqual("request1", ctx.request_id)
-        self.assertEqual("instance1", ctx.instance_uuid)
+        self.assertEqual("instance1", ctx.resource_uuid)

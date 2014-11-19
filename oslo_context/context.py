@@ -41,7 +41,7 @@ class RequestContext(object):
     def __init__(self, auth_token=None, user=None, tenant=None, domain=None,
                  user_domain=None, project_domain=None, is_admin=False,
                  read_only=False, show_deleted=False, request_id=None,
-                 instance_uuid=None):
+                 resource_uuid=None):
         self.auth_token = auth_token
         self.user = user
         self.tenant = tenant
@@ -51,7 +51,7 @@ class RequestContext(object):
         self.is_admin = is_admin
         self.read_only = read_only
         self.show_deleted = show_deleted
-        self.instance_uuid = instance_uuid
+        self.resource_uuid = resource_uuid
         if not request_id:
             request_id = generate_request_id()
         self.request_id = request_id
@@ -74,7 +74,7 @@ class RequestContext(object):
                 'show_deleted': self.show_deleted,
                 'auth_token': self.auth_token,
                 'request_id': self.request_id,
-                'instance_uuid': self.instance_uuid,
+                'resource_uuid': self.resource_uuid,
                 'user_identity': user_idt}
 
     @classmethod
@@ -90,7 +90,7 @@ class RequestContext(object):
             read_only=ctx.get("read_only", False),
             show_deleted=ctx.get("show_deleted", False),
             request_id=ctx.get("request_id"),
-            instance_uuid=ctx.get("instance_uuid"))
+            resource_uuid=ctx.get("resource_uuid"))
 
 
 def get_admin_context(show_deleted=False):
