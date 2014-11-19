@@ -1,16 +1,10 @@
-==============
- oslo.context
-==============
-
-Welcome to oslo.context's documentation!
-========================================
+.. include:: ../../README.rst
 
 Contents:
 
 .. toctree::
    :maxdepth: 2
 
-   readme
    installation
    usage
    contributing
@@ -22,7 +16,7 @@ Code Documentation
 .. toctree::
    :maxdepth: 1
 
-   api/autoindex
+   api/index
 
 Indices and tables
 ==================
