@@ -16,20 +16,14 @@
 from oslotest import base as test_base
 
 from oslo_context import context
+from oslo_context import fixture
 
 
 class ContextTest(test_base.BaseTestCase):
 
     def setUp(self):
         super(ContextTest, self).setUp()
-        self.addCleanup(self._remove_cached_context)
-
-    def _remove_cached_context(self):
-        """Remove the thread-local context stored in the module."""
-        try:
-            del context._request_store.context
-        except AttributeError:
-            pass
+        self.useFixture(fixture.ClearRequestContext())
 
     def test_context(self):
         ctx = context.RequestContext()
@@ -57,7 +51,6 @@ class ContextTest(test_base.BaseTestCase):
 
     def test_store_current(self):
         # By default a new context is stored.
-        self._remove_cached_context()
         ctx = context.RequestContext()
         self.assertIs(context.get_current(), ctx)
 
