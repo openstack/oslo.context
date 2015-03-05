@@ -28,3 +28,19 @@ class ClearRequestContextTest(test_base.BaseTestCase):
         self.assertIs(context.get_current(), ctx)
         fixture.ClearRequestContext()._remove_cached_context()
         self.assertIsNone(context.get_current())
+
+    def test_store_current_resets_correctly(self):
+        # By default a new context is stored.
+        ctx = context.RequestContext()
+
+        # the use of the fixture should put us in a reset state, not
+        # doing so is a bug because when this fixture is consumed by
+        # other test suites there is no guaruntee that all tests use
+        # this fixture.
+        self.useFixture(fixture.ClearRequestContext())
+        self.assertIsNone(context.get_current())
+
+        ctx = context.RequestContext()
+        self.assertIs(context.get_current(), ctx)
+        fixture.ClearRequestContext()._remove_cached_context()
+        self.assertIsNone(context.get_current())
