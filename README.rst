@@ -2,6 +2,14 @@
 Oslo Context Library
 ====================
 
+.. image:: https://img.shields.io/pypi/v/oslo.context.svg
+    :target: https://pypi.python.org/pypi/oslo.context/
+    :alt: Latest Version
+
+.. image:: https://img.shields.io/pypi/dm/oslo.context.svg
+    :target: https://pypi.python.org/pypi/oslo.context/
+    :alt: Downloads
+
 The Oslo context library has helpers to maintain useful information
 about a request context. The request context is usually populated in
 the WSGI pipeline and used by various modules such as logging.
