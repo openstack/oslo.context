@@ -85,3 +85,10 @@ class ContextTest(test_base.BaseTestCase):
         self.assertTrue(ctx.show_deleted)
         self.assertEqual("request1", ctx.request_id)
         self.assertEqual("instance1", ctx.resource_uuid)
+
+    def test_is_user_context(self):
+        self.assertFalse(context.is_user_context(None))
+        ctx = context.RequestContext(is_admin=True)
+        self.assertFalse(context.is_user_context(ctx))
+        ctx = context.RequestContext(is_admin=False)
+        self.assertTrue(context.is_user_context(ctx))

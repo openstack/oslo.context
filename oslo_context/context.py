@@ -137,8 +137,6 @@ def is_user_context(context):
         return False
     if context.is_admin:
         return False
-    if not context.user_id or not context.project_id:
-        return False
     return True
 
 
