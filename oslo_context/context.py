@@ -29,7 +29,7 @@ _request_store = threading.local()
 
 
 def generate_request_id():
-    return b'req-' + str(uuid.uuid4()).encode('ascii')
+    return 'req-%s' % uuid.uuid4()
 
 
 class RequestContext(object):
