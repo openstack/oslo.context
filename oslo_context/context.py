@@ -106,6 +106,28 @@ class RequestContext(object):
             request_id=ctx.get("request_id"),
             resource_uuid=ctx.get("resource_uuid"))
 
+    @classmethod
+    def from_environ(cls, environ, **kwargs):
+        """Load a context object from a request environment.
+
+        If keyword arguments are provided then they override the values in the
+        request environment.
+
+        :param environ: The environment dictionary associated with a request.
+        :type environ: dict
+        """
+        # Load a new context object from the environment variables set by
+        # auth_token middleware. See:
+        # http://docs.openstack.org/developer/keystonemiddleware/api/keystonemiddleware.auth_token.html#what-auth-token-adds-to-the-request-for-use-by-the-openstack-service
+        kwargs.setdefault('auth_token', environ.get('HTTP_X_AUTH_TOKEN'))
+        kwargs.setdefault('user', environ.get('HTTP_X_USER_ID'))
+        kwargs.setdefault('tenant', environ.get('HTTP_X_PROJECT_ID'))
+        kwargs.setdefault('user_domain', environ.get('HTTP_X_USER_DOMAIN_ID'))
+        kwargs.setdefault('project_domain',
+                          environ.get('HTTP_X_PROJECT_DOMAIN_ID'))
+
+        return cls(**kwargs)
+
 
 def get_admin_context(show_deleted=False):
     """Create an administrator context."""
