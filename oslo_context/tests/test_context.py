@@ -13,6 +13,8 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 
+import uuid
+
 from oslotest import base as test_base
 
 from oslo_context import context
@@ -92,3 +94,30 @@ class ContextTest(test_base.BaseTestCase):
         self.assertFalse(context.is_user_context(ctx))
         ctx = context.RequestContext(is_admin=False)
         self.assertTrue(context.is_user_context(ctx))
+
+    def test_aliased_props(self):
+        user = uuid.uuid4().hex
+        tenant = uuid.uuid4().hex
+        domain = uuid.uuid4().hex
+        user_domain = uuid.uuid4().hex
+        project_domain = uuid.uuid4().hex
+
+        ctx = context.RequestContext(user=user,
+                                     tenant=tenant,
+                                     domain=domain,
+                                     user_domain=user_domain,
+                                     project_domain=project_domain)
+
+        # original attributes
+        self.assertEqual(user, ctx.user)
+        self.assertEqual(tenant, ctx.tenant)
+        self.assertEqual(domain, ctx.domain)
+        self.assertEqual(user_domain, ctx.user_domain)
+        self.assertEqual(project_domain, ctx.project_domain)
+
+        # aliased properties
+        self.assertEqual(user, ctx.user_id)
+        self.assertEqual(tenant, ctx.project_id)
+        self.assertEqual(domain, ctx.domain_id)
+        self.assertEqual(user_domain, ctx.user_domain_id)
+        self.assertEqual(project_domain, ctx.project_domain_id)
