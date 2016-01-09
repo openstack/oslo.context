@@ -32,23 +32,6 @@ def generate_request_id():
     return b'req-' + str(uuid.uuid4()).encode('ascii')
 
 
-class _new_prop(object):
-    """Create a new property that refers to an old one.
-
-    For backwards compatibility reasons we need to maintain some attributes of
-    context that should be deprecated. Create a property with a name that
-    points to an otherwise public attribute.
-    """
-    def __init__(self, old_name):
-        self.old_name = old_name
-
-    def __get__(self, obj, objtype):
-        return getattr(obj, self.old_name)
-
-    def __set__(self, obj, val):
-        return setattr(obj, self.old_name, val)
-
-
 class RequestContext(object):
 
     """Helper class to represent useful information about a request context.
@@ -83,16 +66,6 @@ class RequestContext(object):
         self.request_id = request_id
         if overwrite or not get_current():
             self.update_store()
-
-    # NOTE(jamielennox): for now we store under the old name and reference via
-    # the new name. This is currently easier than changing the __init__
-    # arguments. In future this should be swapped and the non-_id suffixed
-    # attributes deprecated.
-    user_id = _new_prop('user')
-    project_id = _new_prop('tenant')
-    domain_id = _new_prop('domain')
-    user_domain_id = _new_prop('user_domain')
-    project_domain_id = _new_prop('project_domain')
 
     def update_store(self):
         _request_store.context = self
