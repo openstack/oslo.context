@@ -13,10 +13,16 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 
+import uuid
+
 from oslotest import base as test_base
 
 from oslo_context import context
 from oslo_context import fixture
+
+
+class Object(object):
+    pass
 
 
 class ContextTest(test_base.BaseTestCase):
@@ -92,3 +98,24 @@ class ContextTest(test_base.BaseTestCase):
         self.assertFalse(context.is_user_context(ctx))
         ctx = context.RequestContext(is_admin=False)
         self.assertTrue(context.is_user_context(ctx))
+
+    def test_from_environ_variables(self):
+        auth_token = uuid.uuid4().hex
+        user_id = uuid.uuid4().hex
+        project_id = uuid.uuid4().hex
+        user_domain_id = uuid.uuid4().hex
+        project_domain_id = uuid.uuid4().hex
+
+        environ = {'HTTP_X_AUTH_TOKEN': auth_token,
+                   'HTTP_X_USER_ID': user_id,
+                   'HTTP_X_PROJECT_ID': project_id,
+                   'HTTP_X_USER_DOMAIN_ID': user_domain_id,
+                   'HTTP_X_PROJECT_DOMAIN_ID': project_domain_id}
+
+        ctx = context.RequestContext.from_environ(environ)
+
+        self.assertEqual(auth_token, ctx.auth_token)
+        self.assertEqual(user_id, ctx.user)
+        self.assertEqual(project_id, ctx.tenant)
+        self.assertEqual(user_domain_id, ctx.user_domain)
+        self.assertEqual(project_domain_id, ctx.project_domain)
