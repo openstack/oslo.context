@@ -53,7 +53,7 @@ class RequestContext(object):
     def __init__(self, auth_token=None, user=None, tenant=None, domain=None,
                  user_domain=None, project_domain=None, is_admin=False,
                  read_only=False, show_deleted=False, request_id=None,
-                 resource_uuid=None, overwrite=True):
+                 resource_uuid=None, overwrite=True, roles=None):
         """Initialize the RequestContext
 
         :param overwrite: Set to False to ensure that the greenthread local
@@ -69,6 +69,7 @@ class RequestContext(object):
         self.read_only = read_only
         self.show_deleted = show_deleted
         self.resource_uuid = resource_uuid
+        self.roles = roles or []
         if not request_id:
             request_id = generate_request_id()
         self.request_id = request_id
@@ -99,6 +100,7 @@ class RequestContext(object):
                 'auth_token': self.auth_token,
                 'request_id': self.request_id,
                 'resource_uuid': self.resource_uuid,
+                'roles': self.roles,
                 'user_identity': user_idt}
 
     def get_logging_values(self):
@@ -142,6 +144,9 @@ class RequestContext(object):
         kwargs.setdefault('user_domain', environ.get('HTTP_X_USER_DOMAIN_ID'))
         kwargs.setdefault('project_domain',
                           environ.get('HTTP_X_PROJECT_DOMAIN_ID'))
+
+        roles = environ.get('HTTP_X_ROLES')
+        kwargs.setdefault('roles', roles.split(',') if roles else [])
 
         return cls(**kwargs)
 
