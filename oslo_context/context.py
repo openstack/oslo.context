@@ -80,6 +80,24 @@ class RequestContext(object):
         """Store the context in the current thread."""
         _request_store.context = self
 
+    def to_policy_values(self):
+        """A dictionary of context attributes to enforce policy with.
+
+        oslo.policy enforcement requires a dictionary of attributes
+        representing the current logged in user on which it applies policy
+        enforcement. This dictionary defines a standard list of attributes that
+        should be available for enforcement across services.
+
+        It is expected that services will often have to override this method
+        with either deprecated values or additional attributes used by that
+        service specific policy.
+        """
+        return {'user_id': self.user,
+                'user_domain_id': self.user_domain,
+                'project_id': self.tenant,
+                'project_domain_id': self.project_domain,
+                'roles': self.roles}
+
     def to_dict(self):
         """Return a dictionary of context attributes."""
         user_idt = (

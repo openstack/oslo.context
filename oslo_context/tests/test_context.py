@@ -318,3 +318,22 @@ class ContextTest(test_base.BaseTestCase):
         id1 = context.generate_request_id()
         id2 = context.generate_request_id()
         self.assertNotEqual(id1, id2)
+
+    def test_policy_dict(self):
+        user = uuid.uuid4().hex
+        user_domain = uuid.uuid4().hex
+        tenant = uuid.uuid4().hex
+        project_domain = uuid.uuid4().hex
+        roles = [uuid.uuid4().hex, uuid.uuid4().hex, uuid.uuid4().hex]
+
+        ctx = context.RequestContext(user=user,
+                                     user_domain=user_domain,
+                                     tenant=tenant,
+                                     project_domain=project_domain,
+                                     roles=roles)
+
+        self.assertEqual({'user_id': user,
+                          'user_domain_id': user_domain,
+                          'project_id': tenant,
+                          'project_domain_id': project_domain,
+                          'roles': roles}, ctx.to_policy_values())
