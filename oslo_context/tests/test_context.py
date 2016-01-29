@@ -261,6 +261,11 @@ class ContextTest(test_base.BaseTestCase):
         self.assertIn('request_id', d)
         self.assertIn('resource_uuid', d)
         self.assertIn('user_identity', d)
+        self.assertIn('instance', d)
+        self.assertIn('resource', d)
+        self.assertIn('user_name', d)
+        self.assertIn('project_name', d)
+        self.assertIn('color', d)
 
         self.assertEqual(auth_token, d['auth_token'])
         self.assertEqual(tenant, d['tenant'])
@@ -275,6 +280,22 @@ class ContextTest(test_base.BaseTestCase):
         user_identity = "%s %s %s %s %s" % (user, tenant, domain,
                                             user_domain, project_domain)
         self.assertEqual(user_identity, d['user_identity'])
+        self.assertEqual("", d['instance'])
+        self.assertEqual("", d['resource'])
+        self.assertEqual("", d['user_name'])
+        self.assertEqual("", d['project_name'])
+        self.assertEqual("", d['color'])
+
+    def test_get_logging_values_extra_attributes(self):
+        ctx = context.RequestContext()
+        d = ctx.get_logging_values()
+        self.assertEqual("", d['color'])
+        color = "red"
+        setattr(ctx, "color", color)
+        d = ctx.get_logging_values()
+        # Regardless of setting attribute, this is not affected as this
+        # is not included in to_dict().
+        self.assertEqual("", d['color'])
 
     def test_dict_empty_user_identity(self):
         ctx = context.RequestContext()
