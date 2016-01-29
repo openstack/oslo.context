@@ -212,6 +212,70 @@ class ContextTest(test_base.BaseTestCase):
                                             user_domain, project_domain)
         self.assertEqual(user_identity, d['user_identity'])
 
+    def test_get_logging_values(self):
+        auth_token = "token1"
+        user = "user1"
+        tenant = "tenant1"
+        domain = "domain1"
+        user_domain = "user_domain1"
+        project_domain = "project_domain1"
+        is_admin = True
+        read_only = True
+        show_deleted = True
+        request_id = "id1"
+        resource_uuid = "uuid1"
+
+        ctx = context.RequestContext(auth_token=auth_token,
+                                     user=user,
+                                     tenant=tenant,
+                                     domain=domain,
+                                     user_domain=user_domain,
+                                     project_domain=project_domain,
+                                     is_admin=is_admin,
+                                     read_only=read_only,
+                                     show_deleted=show_deleted,
+                                     request_id=request_id,
+                                     resource_uuid=resource_uuid)
+        self.assertEqual(auth_token, ctx.auth_token)
+        self.assertEqual(user, ctx.user)
+        self.assertEqual(tenant, ctx.tenant)
+        self.assertEqual(domain, ctx.domain)
+        self.assertEqual(user_domain, ctx.user_domain)
+        self.assertEqual(project_domain, ctx.project_domain)
+        self.assertEqual(is_admin, ctx.is_admin)
+        self.assertEqual(read_only, ctx.read_only)
+        self.assertEqual(show_deleted, ctx.show_deleted)
+        self.assertEqual(request_id, ctx.request_id)
+        self.assertEqual(resource_uuid, ctx.resource_uuid)
+
+        d = ctx.get_logging_values()
+        self.assertIn('auth_token', d)
+        self.assertIn('user', d)
+        self.assertIn('tenant', d)
+        self.assertIn('domain', d)
+        self.assertIn('user_domain', d)
+        self.assertIn('project_domain', d)
+        self.assertIn('is_admin', d)
+        self.assertIn('read_only', d)
+        self.assertIn('show_deleted', d)
+        self.assertIn('request_id', d)
+        self.assertIn('resource_uuid', d)
+        self.assertIn('user_identity', d)
+
+        self.assertEqual(auth_token, d['auth_token'])
+        self.assertEqual(tenant, d['tenant'])
+        self.assertEqual(domain, d['domain'])
+        self.assertEqual(user_domain, d['user_domain'])
+        self.assertEqual(project_domain, d['project_domain'])
+        self.assertEqual(is_admin, d['is_admin'])
+        self.assertEqual(read_only, d['read_only'])
+        self.assertEqual(show_deleted, d['show_deleted'])
+        self.assertEqual(request_id, d['request_id'])
+        self.assertEqual(resource_uuid, d['resource_uuid'])
+        user_identity = "%s %s %s %s %s" % (user, tenant, domain,
+                                            user_domain, project_domain)
+        self.assertEqual(user_identity, d['user_identity'])
+
     def test_dict_empty_user_identity(self):
         ctx = context.RequestContext()
         d = ctx.to_dict()
