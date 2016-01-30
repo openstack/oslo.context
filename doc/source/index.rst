@@ -7,6 +7,7 @@ Contents:
 
    installation
    usage
+   examples
    contributing
    history
 
