@@ -14,10 +14,16 @@
 #    under the License.
 
 """
-Simple class that stores security context information in the web request.
+Base class for holding contextual information of a request
+
+This class has several uses:
+
+* Used for storing security information in a web request.
+* Used for passing contextual details to oslo.log.
 
 Projects should subclass this class if they wish to enhance the request
-context or provide additional information in their specific WSGI pipeline.
+context or provide additional information in their specific WSGI pipeline
+or logging context.
 """
 
 import itertools
@@ -29,6 +35,7 @@ _request_store = threading.local()
 
 
 def generate_request_id():
+    """Generate a unique request id."""
     return 'req-%s' % uuid.uuid4()
 
 
@@ -68,9 +75,11 @@ class RequestContext(object):
             self.update_store()
 
     def update_store(self):
+        """Store the context in the current thread."""
         _request_store.context = self
 
     def to_dict(self):
+        """Return a dictionary of context attributes."""
         user_idt = (
             self.user_idt_format.format(user=self.user or '-',
                                         tenant=self.tenant or '-',
@@ -91,8 +100,14 @@ class RequestContext(object):
                 'resource_uuid': self.resource_uuid,
                 'user_identity': user_idt}
 
+    def get_logging_values(self):
+        """Return a dictionary of logging specific context attributes."""
+        values = self.to_dict()
+        return values
+
     @classmethod
     def from_dict(cls, ctx):
+        """Construct a context object from a provided dictionary."""
         return cls(
             auth_token=ctx.get("auth_token"),
             user=ctx.get("user"),
