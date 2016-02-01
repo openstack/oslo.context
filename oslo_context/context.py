@@ -26,6 +26,7 @@ context or provide additional information in their specific WSGI pipeline
 or logging context.
 """
 
+import inspect
 import itertools
 import threading
 import uuid
@@ -114,20 +115,13 @@ class RequestContext(object):
         return values
 
     @classmethod
-    def from_dict(cls, ctx):
+    def from_dict(cls, values):
         """Construct a context object from a provided dictionary."""
-        return cls(
-            auth_token=ctx.get("auth_token"),
-            user=ctx.get("user"),
-            tenant=ctx.get("tenant"),
-            domain=ctx.get("domain"),
-            user_domain=ctx.get("user_domain"),
-            project_domain=ctx.get("project_domain"),
-            is_admin=ctx.get("is_admin", False),
-            read_only=ctx.get("read_only", False),
-            show_deleted=ctx.get("show_deleted", False),
-            request_id=ctx.get("request_id"),
-            resource_uuid=ctx.get("resource_uuid"))
+        allowed = [arg for arg in
+                   inspect.getargspec(RequestContext.__init__).args
+                   if arg != 'self']
+        kwargs = {k: v for (k, v) in values.items() if k in allowed}
+        return cls(**kwargs)
 
     @classmethod
     def from_environ(cls, environ, **kwargs):
