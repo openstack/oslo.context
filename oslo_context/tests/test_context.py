@@ -104,6 +104,23 @@ class ContextTest(test_base.BaseTestCase):
         self.assertEqual("request1", ctx.request_id)
         self.assertEqual("instance1", ctx.resource_uuid)
 
+    def test_from_dict_unknown_keys(self):
+        dct = {
+            "auth_token": "token1",
+            "user": "user1",
+            "read_only": True,
+            "roles": "role1,role2,role3",  # future review provides this
+            "color": "red",
+            "unknown": ""
+        }
+        ctx = context.RequestContext.from_dict(dct)
+        self.assertEqual("token1", ctx.auth_token)
+        self.assertEqual("user1", ctx.user)
+        self.assertIsNone(ctx.tenant)
+        self.assertFalse(ctx.is_admin)
+        self.assertTrue(ctx.read_only)
+        self.assertRaises(KeyError, lambda: ctx.__dict__['color'])
+
     def test_is_user_context(self):
         self.assertFalse(context.is_user_context(None))
         ctx = context.RequestContext(is_admin=True)
