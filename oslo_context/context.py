@@ -102,15 +102,7 @@ class RequestContext(object):
 
     def get_logging_values(self):
         """Return a dictionary of logging specific context attributes."""
-        # Define these attributes so that oslo.log does not throw an exception
-        # if used in any formatting strings
-        values = {'instance': '',
-                  'resource': '',
-                  'user_name': '',
-                  'project_name': '',
-                  'color': ''}
-        values.update(self.to_dict())
-
+        values = self.to_dict()
         return values
 
     @classmethod
