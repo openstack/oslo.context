@@ -48,7 +48,7 @@ class RequestContext(object):
     accesses the system, as well as additional request information.
     """
 
-    user_idt_format = '{user} {tenant} {domain} {user_domain} {p_domain}'
+    user_idt_format = u'{user} {tenant} {domain} {user_domain} {p_domain}'
 
     def __init__(self, auth_token=None, user=None, tenant=None, domain=None,
                  user_domain=None, project_domain=None, is_admin=False,

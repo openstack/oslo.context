@@ -1,3 +1,4 @@
+# -*- encoding: utf-8 -*-
 # Copyright 2011 OpenStack Foundation.
 # All Rights Reserved.
 #
@@ -177,7 +178,8 @@ class ContextTest(test_base.BaseTestCase):
 
     def test_values(self):
         auth_token = "token1"
-        user = "user1"
+        # test unicode support
+        user = u"John Gāo"
         tenant = "tenant1"
         domain = "domain1"
         user_domain = "user_domain1"
