@@ -14,12 +14,17 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 
+import hashlib
 import uuid
 
 from oslotest import base as test_base
 
 from oslo_context import context
 from oslo_context import fixture
+
+
+def generate_id(name):
+    return hashlib.md5(name.encode('utf-8')).hexdigest()
 
 
 class Object(object):
@@ -81,10 +86,15 @@ class ContextTest(test_base.BaseTestCase):
         dct = {
             "auth_token": "token1",
             "user": "user1",
+            "user_name": "user1_name",
             "tenant": "tenant1",
+            "project_name": "tenant1_name",
             "domain": "domain1",
+            "domain_name": "domain1_name",
             "user_domain": "user_domain1",
+            "user_domain_name": "user_domain1_name",
             "project_domain": "project_domain1",
+            "project_domain_name": "project_domain1_name",
             "is_admin": True,
             "read_only": True,
             "show_deleted": True,
@@ -93,17 +103,22 @@ class ContextTest(test_base.BaseTestCase):
             "extra_data": "foo"
         }
         ctx = context.RequestContext.from_dict(dct)
-        self.assertEqual("token1", ctx.auth_token)
-        self.assertEqual("user1", ctx.user)
-        self.assertEqual("tenant1", ctx.tenant)
-        self.assertEqual("domain1", ctx.domain)
-        self.assertEqual("user_domain1", ctx.user_domain)
-        self.assertEqual("project_domain1", ctx.project_domain)
+        self.assertEqual(dct['auth_token'], ctx.auth_token)
+        self.assertEqual(dct['user'], ctx.user)
+        self.assertEqual(dct['tenant'], ctx.tenant)
+        self.assertEqual(dct['domain'], ctx.domain)
+        self.assertEqual(dct['user_domain'], ctx.user_domain)
+        self.assertEqual(dct['project_domain'], ctx.project_domain)
         self.assertTrue(ctx.is_admin)
         self.assertTrue(ctx.read_only)
         self.assertTrue(ctx.show_deleted)
-        self.assertEqual("request1", ctx.request_id)
-        self.assertEqual("instance1", ctx.resource_uuid)
+        self.assertEqual(dct['request_id'], ctx.request_id)
+        self.assertEqual(dct['resource_uuid'], ctx.resource_uuid)
+        self.assertEqual(dct['user_name'], ctx.user_name)
+        self.assertEqual(dct['project_name'], ctx.project_name)
+        self.assertEqual(dct['domain_name'], ctx.domain_name)
+        self.assertEqual(dct['user_domain_name'], ctx.user_domain_name)
+        self.assertEqual(dct['project_domain_name'], ctx.project_domain_name)
 
     def test_from_dict_unknown_keys(self):
         dct = {
@@ -132,10 +147,14 @@ class ContextTest(test_base.BaseTestCase):
 
     def test_from_environ_variables(self):
         auth_token = uuid.uuid4().hex
-        user_id = uuid.uuid4().hex
-        project_id = uuid.uuid4().hex
-        user_domain_id = uuid.uuid4().hex
-        project_domain_id = uuid.uuid4().hex
+        user_name = uuid.uuid4().hex
+        user_id = generate_id(user_name)
+        project_name = uuid.uuid4().hex
+        project_id = generate_id(project_name)
+        user_domain_name = uuid.uuid4().hex
+        user_domain_id = generate_id(user_domain_name)
+        project_domain_name = uuid.uuid4().hex
+        project_domain_id = generate_id(project_domain_name)
         roles = [uuid.uuid4().hex, uuid.uuid4().hex, uuid.uuid4().hex]
 
         environ = {'HTTP_X_AUTH_TOKEN': auth_token,
@@ -143,15 +162,23 @@ class ContextTest(test_base.BaseTestCase):
                    'HTTP_X_PROJECT_ID': project_id,
                    'HTTP_X_USER_DOMAIN_ID': user_domain_id,
                    'HTTP_X_PROJECT_DOMAIN_ID': project_domain_id,
-                   'HTTP_X_ROLES': ','.join(roles)}
+                   'HTTP_X_ROLES': ','.join(roles),
+                   'HTTP_X_USER_NAME': user_name,
+                   'HTTP_X_PROJECT_NAME': project_name,
+                   'HTTP_X_USER_DOMAIN_NAME': user_domain_name,
+                   'HTTP_X_PROJECT_DOMAIN_NAME': project_domain_name}
 
         ctx = context.RequestContext.from_environ(environ)
 
         self.assertEqual(auth_token, ctx.auth_token)
         self.assertEqual(user_id, ctx.user)
+        self.assertEqual(user_name, ctx.user_name)
         self.assertEqual(project_id, ctx.tenant)
+        self.assertEqual(project_name, ctx.project_name)
         self.assertEqual(user_domain_id, ctx.user_domain)
+        self.assertEqual(user_domain_name, ctx.user_domain_name)
         self.assertEqual(project_domain_id, ctx.project_domain)
+        self.assertEqual(project_domain_name, ctx.project_domain_name)
         self.assertEqual(roles, ctx.roles)
 
     def test_from_environ_no_roles(self):
@@ -232,11 +259,16 @@ class ContextTest(test_base.BaseTestCase):
     def test_values(self):
         auth_token = "token1"
         # test unicode support
-        user = u"John Gāo"
-        tenant = "tenant1"
-        domain = "domain1"
-        user_domain = "user_domain1"
-        project_domain = "project_domain1"
+        user_name = u"John Gāo"
+        user_id = generate_id(user_name)
+        project_name = 'tenant1'
+        project_id = generate_id(project_name)
+        domain_name = 'domain1'
+        domain_id = generate_id(domain_name)
+        user_domain_name = 'user_domain1'
+        user_domain_id = generate_id(user_domain_name)
+        project_domain_name = 'project_domain1'
+        project_domain_id = generate_id(project_domain_name)
         is_admin = True
         read_only = True
         show_deleted = True
@@ -244,22 +276,32 @@ class ContextTest(test_base.BaseTestCase):
         resource_uuid = "uuid1"
 
         ctx = context.RequestContext(auth_token=auth_token,
-                                     user=user,
-                                     tenant=tenant,
-                                     domain=domain,
-                                     user_domain=user_domain,
-                                     project_domain=project_domain,
+                                     user=user_id,
+                                     user_name=user_name,
+                                     tenant=project_id,
+                                     project_name=project_name,
+                                     domain=domain_id,
+                                     domain_name=domain_name,
+                                     user_domain=user_domain_id,
+                                     user_domain_name=user_domain_name,
+                                     project_domain=project_domain_id,
+                                     project_domain_name=project_domain_name,
                                      is_admin=is_admin,
                                      read_only=read_only,
                                      show_deleted=show_deleted,
                                      request_id=request_id,
                                      resource_uuid=resource_uuid)
         self.assertEqual(auth_token, ctx.auth_token)
-        self.assertEqual(user, ctx.user)
-        self.assertEqual(tenant, ctx.tenant)
-        self.assertEqual(domain, ctx.domain)
-        self.assertEqual(user_domain, ctx.user_domain)
-        self.assertEqual(project_domain, ctx.project_domain)
+        self.assertEqual(user_id, ctx.user)
+        self.assertEqual(user_name, ctx.user_name)
+        self.assertEqual(project_id, ctx.tenant)
+        self.assertEqual(project_name, ctx.project_name)
+        self.assertEqual(domain_id, ctx.domain)
+        self.assertEqual(domain_name, ctx.domain_name)
+        self.assertEqual(user_domain_id, ctx.user_domain)
+        self.assertEqual(user_domain_name, ctx.user_domain_name)
+        self.assertEqual(project_domain_id, ctx.project_domain)
+        self.assertEqual(project_domain_name, ctx.project_domain_name)
         self.assertEqual(is_admin, ctx.is_admin)
         self.assertEqual(read_only, ctx.read_only)
         self.assertEqual(show_deleted, ctx.show_deleted)
@@ -280,57 +322,26 @@ class ContextTest(test_base.BaseTestCase):
         self.assertIn('resource_uuid', d)
         self.assertIn('user_identity', d)
         self.assertIn('roles', d)
+        self.assertNotIn('user_name', d)
+        self.assertNotIn('project_name', d)
+        self.assertNotIn('domain_name', d)
+        self.assertNotIn('user_domain_name', d)
+        self.assertNotIn('project_domain_name', d)
 
         self.assertEqual(auth_token, d['auth_token'])
-        self.assertEqual(tenant, d['tenant'])
-        self.assertEqual(domain, d['domain'])
-        self.assertEqual(user_domain, d['user_domain'])
-        self.assertEqual(project_domain, d['project_domain'])
+        self.assertEqual(project_id, d['tenant'])
+        self.assertEqual(domain_id, d['domain'])
+        self.assertEqual(user_domain_id, d['user_domain'])
+        self.assertEqual(project_domain_id, d['project_domain'])
         self.assertEqual(is_admin, d['is_admin'])
         self.assertEqual(read_only, d['read_only'])
         self.assertEqual(show_deleted, d['show_deleted'])
         self.assertEqual(request_id, d['request_id'])
         self.assertEqual(resource_uuid, d['resource_uuid'])
-        user_identity = "%s %s %s %s %s" % (user, tenant, domain,
-                                            user_domain, project_domain)
+        user_identity = "%s %s %s %s %s" % (user_id, project_id, domain_id,
+                                            user_domain_id, project_domain_id)
         self.assertEqual(user_identity, d['user_identity'])
         self.assertEqual([], d['roles'])
-
-    def test_get_logging_values(self):
-        auth_token = "token1"
-        user = "user1"
-        tenant = "tenant1"
-        domain = "domain1"
-        user_domain = "user_domain1"
-        project_domain = "project_domain1"
-        is_admin = True
-        read_only = True
-        show_deleted = True
-        request_id = "id1"
-        resource_uuid = "uuid1"
-
-        ctx = context.RequestContext(auth_token=auth_token,
-                                     user=user,
-                                     tenant=tenant,
-                                     domain=domain,
-                                     user_domain=user_domain,
-                                     project_domain=project_domain,
-                                     is_admin=is_admin,
-                                     read_only=read_only,
-                                     show_deleted=show_deleted,
-                                     request_id=request_id,
-                                     resource_uuid=resource_uuid)
-        self.assertEqual(auth_token, ctx.auth_token)
-        self.assertEqual(user, ctx.user)
-        self.assertEqual(tenant, ctx.tenant)
-        self.assertEqual(domain, ctx.domain)
-        self.assertEqual(user_domain, ctx.user_domain)
-        self.assertEqual(project_domain, ctx.project_domain)
-        self.assertEqual(is_admin, ctx.is_admin)
-        self.assertEqual(read_only, ctx.read_only)
-        self.assertEqual(show_deleted, ctx.show_deleted)
-        self.assertEqual(request_id, ctx.request_id)
-        self.assertEqual(resource_uuid, ctx.resource_uuid)
 
         d = ctx.get_logging_values()
         self.assertIn('auth_token', d)
@@ -345,20 +356,18 @@ class ContextTest(test_base.BaseTestCase):
         self.assertIn('request_id', d)
         self.assertIn('resource_uuid', d)
         self.assertIn('user_identity', d)
+        self.assertIn('roles', d)
+        self.assertIn('user_name', d)
+        self.assertIn('project_name', d)
+        self.assertIn('domain_name', d)
+        self.assertIn('user_domain_name', d)
+        self.assertIn('project_domain_name', d)
 
-        self.assertEqual(auth_token, d['auth_token'])
-        self.assertEqual(tenant, d['tenant'])
-        self.assertEqual(domain, d['domain'])
-        self.assertEqual(user_domain, d['user_domain'])
-        self.assertEqual(project_domain, d['project_domain'])
-        self.assertEqual(is_admin, d['is_admin'])
-        self.assertEqual(read_only, d['read_only'])
-        self.assertEqual(show_deleted, d['show_deleted'])
-        self.assertEqual(request_id, d['request_id'])
-        self.assertEqual(resource_uuid, d['resource_uuid'])
-        user_identity = "%s %s %s %s %s" % (user, tenant, domain,
-                                            user_domain, project_domain)
-        self.assertEqual(user_identity, d['user_identity'])
+        self.assertEqual(user_name, d['user_name'])
+        self.assertEqual(project_name, d['project_name'])
+        self.assertEqual(domain_name, d['domain_name'])
+        self.assertEqual(user_domain_name, d['user_domain_name'])
+        self.assertEqual(project_domain_name, d['project_domain_name'])
 
     def test_dict_empty_user_identity(self):
         ctx = context.RequestContext()
