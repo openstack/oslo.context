@@ -34,6 +34,18 @@ import uuid
 
 _request_store = threading.local()
 
+# These arguments will be passed to a new context from the first available
+# header to support backwards compatibility.
+_ENVIRON_HEADERS = {'auth_token': ['HTTP_X_AUTH_TOKEN',
+                                   'HTTP_X_STORAGE_TOKEN'],
+                    'user': ['HTTP_X_USER_ID',
+                             'HTTP_X_USER'],
+                    'tenant': ['HTTP_X_PROJECT_ID',
+                               'HTTP_X_TENANT_ID',
+                               'HTTP_X_TENANT'],
+                    'user_domain': ['HTTP_X_USER_DOMAIN_ID'],
+                    'project_domain': ['HTTP_X_PROJECT_DOMAIN_ID']}
+
 
 def generate_request_id():
     """Generate a unique request id."""
@@ -148,15 +160,20 @@ class RequestContext(object):
         # Load a new context object from the environment variables set by
         # auth_token middleware. See:
         # http://docs.openstack.org/developer/keystonemiddleware/api/keystonemiddleware.auth_token.html#what-auth-token-adds-to-the-request-for-use-by-the-openstack-service
-        kwargs.setdefault('auth_token', environ.get('HTTP_X_AUTH_TOKEN'))
-        kwargs.setdefault('user', environ.get('HTTP_X_USER_ID'))
-        kwargs.setdefault('tenant', environ.get('HTTP_X_PROJECT_ID'))
-        kwargs.setdefault('user_domain', environ.get('HTTP_X_USER_DOMAIN_ID'))
-        kwargs.setdefault('project_domain',
-                          environ.get('HTTP_X_PROJECT_DOMAIN_ID'))
 
-        roles = environ.get('HTTP_X_ROLES')
-        kwargs.setdefault('roles', roles.split(',') if roles else [])
+        # add kwarg if not specified by user from a list of possible headers
+        for k, v_list in _ENVIRON_HEADERS.items():
+            if k in kwargs:
+                continue
+
+            for v in v_list:
+                if v in environ:
+                    kwargs[k] = environ[v]
+                    break
+
+        if 'roles' not in kwargs:
+            roles = environ.get('HTTP_X_ROLES', environ.get('HTTP_X_ROLE'))
+            kwargs['roles'] = roles.split(',') if roles else []
 
         return cls(**kwargs)
 
