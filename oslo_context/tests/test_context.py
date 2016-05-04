@@ -209,6 +209,11 @@ class ContextTest(test_base.BaseTestCase):
                                                   tenant=override)
         self.assertEqual(ctx.tenant, override)
 
+    def test_from_environ_strip_roles(self):
+        environ = {'HTTP_X_ROLES': ' abc\t,\ndef\n,ghi\n\n'}
+        ctx = context.RequestContext.from_environ(environ=environ)
+        self.assertEqual(['abc', 'def', 'ghi'], ctx.roles)
+
     def test_from_function_and_args(self):
         ctx = context.RequestContext(user="user1")
         arg = []

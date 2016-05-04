@@ -173,7 +173,8 @@ class RequestContext(object):
 
         if 'roles' not in kwargs:
             roles = environ.get('HTTP_X_ROLES', environ.get('HTTP_X_ROLE'))
-            kwargs['roles'] = roles.split(',') if roles else []
+            roles = [r.strip() for r in roles.split(',')] if roles else []
+            kwargs['roles'] = roles
 
         return cls(**kwargs)
 
