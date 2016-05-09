@@ -26,9 +26,11 @@ context or provide additional information in their specific WSGI pipeline
 or logging context.
 """
 
+import collections
 import itertools
 import threading
 import uuid
+import warnings
 
 from positional import positional
 
@@ -58,6 +60,62 @@ _ENVIRON_HEADERS = {'auth_token': ['HTTP_X_AUTH_TOKEN',
 def generate_request_id():
     """Generate a unique request id."""
     return 'req-%s' % uuid.uuid4()
+
+
+class _DeprecatedPolicyValues(collections.MutableMapping):
+    """A Dictionary that manages current and deprecated policy values.
+
+    Anything added to this dictionary after initial creation is considered a
+    deprecated key that we are trying to move services away from. Accessing
+    these values as oslo.policy will do will trigger a DeprecationWarning.
+    """
+
+    def __init__(self, data):
+        self._data = data
+        self._deprecated = {}
+
+    def __getitem__(self, k):
+        try:
+            return self._data[k]
+        except KeyError:
+            pass
+
+        try:
+            val = self._deprecated[k]
+        except KeyError:
+            pass
+        else:
+            warnings.warn('Policy enforcement is depending on the value of '
+                          '%s. This key is deprecated. Please update your '
+                          'policy file to use the standard policy values.' % k,
+                          DeprecationWarning)
+            return val
+
+        raise KeyError(k)
+
+    def __setitem__(self, k, v):
+        self._deprecated[k] = v
+
+    def __delitem__(self, k):
+        del self._deprecated[k]
+
+    def __iter__(self):
+        return iter(self._dict)
+
+    def __len__(self):
+        return len(self._dict)
+
+    def __str__(self):
+        return self._dict.__str__()
+
+    def __repr__(self):
+        return self._dict.__repr__()
+
+    @property
+    def _dict(self):
+        d = self._deprecated.copy()
+        d.update(self._data)
+        return d
 
 
 class RequestContext(object):
@@ -128,12 +186,17 @@ class RequestContext(object):
         with either deprecated values or additional attributes used by that
         service specific policy.
         """
-        return {'user_id': self.user,
-                'user_domain_id': self.user_domain,
-                'project_id': self.tenant,
-                'project_domain_id': self.project_domain,
-                'roles': self.roles,
-                'is_admin_project': self.is_admin_project}
+        # NOTE(jamielennox): We need a way to allow projects to provide old
+        # deprecated policy values that trigger a warning when used in favour
+        # of our standard ones. This object acts like a dict but only values
+        # from oslo.policy don't show a warning.
+        return _DeprecatedPolicyValues({
+            'user_id': self.user,
+            'user_domain_id': self.user_domain,
+            'project_id': self.tenant,
+            'project_domain_id': self.project_domain,
+            'roles': self.roles,
+            'is_admin_project': self.is_admin_project})
 
     def to_dict(self):
         """Return a dictionary of context attributes."""

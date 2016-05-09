@@ -471,7 +471,6 @@ class ContextTest(test_base.BaseTestCase):
                           'is_admin_project': True},
                          ctx.to_policy_values())
 
-        # is_admin_project False gets passed through
         ctx = context.RequestContext(user=user,
                                      user_domain=user_domain,
                                      tenant=tenant,
@@ -493,3 +492,32 @@ class ContextTest(test_base.BaseTestCase):
         self.assertEqual(1, len(self.warnings.log))
         self.assertIn('__init__ takes at most 1 positional',
                       str(self.warnings.log[0].message))
+
+    def test_policy_deprecations(self):
+        user = uuid.uuid4().hex
+        user_domain = uuid.uuid4().hex
+        tenant = uuid.uuid4().hex
+        project_domain = uuid.uuid4().hex
+        roles = [uuid.uuid4().hex, uuid.uuid4().hex, uuid.uuid4().hex]
+
+        ctx = context.RequestContext(user=user,
+                                     user_domain=user_domain,
+                                     tenant=tenant,
+                                     project_domain=project_domain,
+                                     roles=roles)
+
+        policy = ctx.to_policy_values()
+        key = uuid.uuid4().hex
+        val = uuid.uuid4().hex
+
+        with warnings.catch_warnings(record=True) as w:
+            warnings.simplefilter("always")
+
+            # no warning triggered by adding key to dict
+            policy[key] = val
+            self.assertEqual(0, len(w))
+
+            # warning triggered by fetching key from dict
+            self.assertIs(val, policy[key])
+            self.assertEqual(1, len(w))
+            self.assertIn(key, str(w[0].message))
