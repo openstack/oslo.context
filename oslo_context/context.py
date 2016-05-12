@@ -32,6 +32,7 @@ import threading
 import uuid
 import warnings
 
+import debtcollector
 from positional import positional
 
 
@@ -118,6 +119,38 @@ class _DeprecatedPolicyValues(collections.MutableMapping):
         return d
 
 
+def _moved_msg(new_name, old_name):
+    if old_name:
+        deprecated_msg = "Property '%(old_name)s' has moved to '%(new_name)s'"
+        deprecated_msg = deprecated_msg % {'old_name': old_name,
+                                           'new_name': new_name}
+
+        debtcollector.deprecate(deprecated_msg,
+                                version='2.6',
+                                removal_version='3.0',
+                                stacklevel=5)
+
+
+def _moved_property(new_name, old_name=None, target=None):
+
+    if not target:
+        target = new_name
+
+    def getter(self):
+        _moved_msg(new_name, old_name)
+        return getattr(self, target)
+
+    def setter(self, value):
+        _moved_msg(new_name, old_name)
+        setattr(self, target, value)
+
+    def deleter(self):
+        _moved_msg(new_name, old_name)
+        delattr(self, target)
+
+    return property(getter, setter, deleter)
+
+
 class RequestContext(object):
 
     """Helper class to represent useful information about a request context.
@@ -145,18 +178,18 @@ class RequestContext(object):
                                  True for backwards compatibility.
         :type is_admin_project: bool
         """
+        # setting to private variables to avoid triggering subclass properties
+        self._user_id = user
+        self._project_id = tenant
+        self._domain_id = domain
+        self._user_domain_id = user_domain
+        self._project_domain_id = project_domain
+
         self.auth_token = auth_token
-        self.user = user
         self.user_name = user_name
-        # NOTE (rbradfor):  tenant will become project
-        # See spec discussion on https://review.openstack.org/#/c/290907/
-        self.tenant = tenant
         self.project_name = project_name
-        self.domain = domain
         self.domain_name = domain_name
-        self.user_domain = user_domain
         self.user_domain_name = user_domain_name
-        self.project_domain = project_domain
         self.project_domain_name = project_domain_name
         self.is_admin = is_admin
         self.is_admin_project = is_admin_project
@@ -169,6 +202,25 @@ class RequestContext(object):
         self.request_id = request_id
         if overwrite or not get_current():
             self.update_store()
+
+    # NOTE(jamielennox): To prevent circular lookups on subclasses that might
+    # point user to user_id we make user/user_id tenant/project_id etc point
+    # to the same private variable rather than each other.
+    tenant = _moved_property('project_id', 'tenant', target='_project_id')
+    user = _moved_property('user_id', 'user', target='_user_id')
+    domain = _moved_property('domain_id', 'domain', target='_domain_id')
+    user_domain = _moved_property('user_domain_id',
+                                  'user_domain',
+                                  target='_user_domain_id')
+    project_domain = _moved_property('project_domain_id',
+                                     'project_domain',
+                                     target='_project_domain_id')
+
+    user_id = _moved_property('_user_id')
+    project_id = _moved_property('_project_id')
+    domain_id = _moved_property('_domain_id')
+    user_domain_id = _moved_property('_user_domain_id')
+    project_domain_id = _moved_property('_project_domain_id')
 
     def update_store(self):
         """Store the context in the current thread."""
@@ -191,27 +243,27 @@ class RequestContext(object):
         # of our standard ones. This object acts like a dict but only values
         # from oslo.policy don't show a warning.
         return _DeprecatedPolicyValues({
-            'user_id': self.user,
-            'user_domain_id': self.user_domain,
-            'project_id': self.tenant,
-            'project_domain_id': self.project_domain,
+            'user_id': self.user_id,
+            'user_domain_id': self.user_domain_id,
+            'project_id': self.project_id,
+            'project_domain_id': self.project_domain_id,
             'roles': self.roles,
             'is_admin_project': self.is_admin_project})
 
     def to_dict(self):
         """Return a dictionary of context attributes."""
-        user_idt = (
-            self.user_idt_format.format(user=self.user or '-',
-                                        tenant=self.tenant or '-',
-                                        domain=self.domain or '-',
-                                        user_domain=self.user_domain or '-',
-                                        p_domain=self.project_domain or '-'))
+        user_idt = self.user_idt_format.format(
+            user=self.user_id or '-',
+            tenant=self.project_id or '-',
+            domain=self.domain_id or '-',
+            user_domain=self.user_domain_id or '-',
+            p_domain=self.project_domain_id or '-')
 
-        return {'user': self.user,
-                'tenant': self.tenant,
-                'domain': self.domain,
-                'user_domain': self.user_domain,
-                'project_domain': self.project_domain,
+        return {'user': self.user_id,
+                'tenant': self.project_id,
+                'domain': self.domain_id,
+                'user_domain': self.user_domain_id,
+                'project_domain': self.project_domain_id,
                 'is_admin': self.is_admin,
                 'read_only': self.read_only,
                 'show_deleted': self.show_deleted,
