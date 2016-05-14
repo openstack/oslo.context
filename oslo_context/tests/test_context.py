@@ -161,6 +161,54 @@ class ContextTest(test_base.BaseTestCase):
         ctx = context.RequestContext.from_environ(environ={'HTTP_X_ROLES': ''})
         self.assertEqual([], ctx.roles)
 
+    def test_from_environ_deprecated_variables(self):
+        value = uuid.uuid4().hex
+
+        environ = {'HTTP_X_USER': value}
+        ctx = context.RequestContext.from_environ(environ=environ)
+        self.assertEqual(value, ctx.user)
+
+        environ = {'HTTP_X_TENANT_ID': value}
+        ctx = context.RequestContext.from_environ(environ=environ)
+        self.assertEqual(value, ctx.tenant)
+
+        environ = {'HTTP_X_STORAGE_TOKEN': value}
+        ctx = context.RequestContext.from_environ(environ=environ)
+        self.assertEqual(value, ctx.auth_token)
+
+        environ = {'HTTP_X_TENANT': value}
+        ctx = context.RequestContext.from_environ(environ=environ)
+        self.assertEqual(value, ctx.tenant)
+
+        environ = {'HTTP_X_ROLE': value}
+        ctx = context.RequestContext.from_environ(environ=environ)
+        self.assertEqual([value], ctx.roles)
+
+    def test_from_environ_deprecated_precendence(self):
+        old = uuid.uuid4().hex
+        new = uuid.uuid4().hex
+        override = uuid.uuid4().hex
+
+        environ = {'HTTP_X_USER': old,
+                   'HTTP_X_USER_ID': new}
+
+        ctx = context.RequestContext.from_environ(environ=environ)
+        self.assertEqual(ctx.user, new)
+
+        ctx = context.RequestContext.from_environ(environ=environ,
+                                                  user=override)
+        self.assertEqual(ctx.user, override)
+
+        environ = {'HTTP_X_TENANT': old,
+                   'HTTP_X_PROJECT_ID': new}
+
+        ctx = context.RequestContext.from_environ(environ=environ)
+        self.assertEqual(ctx.tenant, new)
+
+        ctx = context.RequestContext.from_environ(environ=environ,
+                                                  tenant=override)
+        self.assertEqual(ctx.tenant, override)
+
     def test_from_function_and_args(self):
         ctx = context.RequestContext(user="user1")
         arg = []
