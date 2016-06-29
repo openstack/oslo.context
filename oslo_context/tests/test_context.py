@@ -156,6 +156,7 @@ class ContextTest(test_base.BaseTestCase):
         project_domain_name = uuid.uuid4().hex
         project_domain_id = generate_id(project_domain_name)
         roles = [uuid.uuid4().hex, uuid.uuid4().hex, uuid.uuid4().hex]
+        request_id = uuid.uuid4().hex
 
         environ = {'HTTP_X_AUTH_TOKEN': auth_token,
                    'HTTP_X_USER_ID': user_id,
@@ -166,7 +167,8 @@ class ContextTest(test_base.BaseTestCase):
                    'HTTP_X_USER_NAME': user_name,
                    'HTTP_X_PROJECT_NAME': project_name,
                    'HTTP_X_USER_DOMAIN_NAME': user_domain_name,
-                   'HTTP_X_PROJECT_DOMAIN_NAME': project_domain_name}
+                   'HTTP_X_PROJECT_DOMAIN_NAME': project_domain_name,
+                   'openstack.request_id': request_id}
 
         ctx = context.RequestContext.from_environ(environ)
 
@@ -180,6 +182,7 @@ class ContextTest(test_base.BaseTestCase):
         self.assertEqual(project_domain_id, ctx.project_domain)
         self.assertEqual(project_domain_name, ctx.project_domain_name)
         self.assertEqual(roles, ctx.roles)
+        self.assertEqual(request_id, ctx.request_id)
 
     def test_from_environ_no_roles(self):
         ctx = context.RequestContext.from_environ(environ={})

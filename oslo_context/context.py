@@ -48,7 +48,9 @@ _ENVIRON_HEADERS = {'auth_token': ['HTTP_X_AUTH_TOKEN',
                     'user_name': ['HTTP_X_USER_NAME'],
                     'project_name': ['HTTP_X_PROJECT_NAME'],
                     'user_domain_name': ['HTTP_X_USER_DOMAIN_NAME'],
-                    'project_domain_name': ['HTTP_X_PROJECT_DOMAIN_NAME']}
+                    'project_domain_name': ['HTTP_X_PROJECT_DOMAIN_NAME'],
+                    'request_id': ['openstack.request_id'],
+                    }
 
 
 def generate_request_id():
