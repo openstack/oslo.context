@@ -44,7 +44,11 @@ _ENVIRON_HEADERS = {'auth_token': ['HTTP_X_AUTH_TOKEN',
                                'HTTP_X_TENANT_ID',
                                'HTTP_X_TENANT'],
                     'user_domain': ['HTTP_X_USER_DOMAIN_ID'],
-                    'project_domain': ['HTTP_X_PROJECT_DOMAIN_ID']}
+                    'project_domain': ['HTTP_X_PROJECT_DOMAIN_ID'],
+                    'user_name': ['HTTP_X_USER_NAME'],
+                    'project_name': ['HTTP_X_PROJECT_NAME'],
+                    'user_domain_name': ['HTTP_X_USER_DOMAIN_NAME'],
+                    'project_domain_name': ['HTTP_X_PROJECT_DOMAIN_NAME']}
 
 
 def generate_request_id():
@@ -65,7 +69,9 @@ class RequestContext(object):
     def __init__(self, auth_token=None, user=None, tenant=None, domain=None,
                  user_domain=None, project_domain=None, is_admin=False,
                  read_only=False, show_deleted=False, request_id=None,
-                 resource_uuid=None, overwrite=True, roles=None):
+                 resource_uuid=None, overwrite=True, roles=None,
+                 user_name=None, project_name=None, domain_name=None,
+                 user_domain_name=None, project_domain_name=None):
         """Initialize the RequestContext
 
         :param overwrite: Set to False to ensure that the greenthread local
@@ -73,10 +79,17 @@ class RequestContext(object):
         """
         self.auth_token = auth_token
         self.user = user
+        self.user_name = user_name
+        # NOTE (rbradfor):  tenant will become project
+        # See spec discussion on https://review.openstack.org/#/c/290907/
         self.tenant = tenant
+        self.project_name = project_name
         self.domain = domain
+        self.domain_name = domain_name
         self.user_domain = user_domain
+        self.user_domain_name = user_domain_name
         self.project_domain = project_domain
+        self.project_domain_name = project_domain_name
         self.is_admin = is_admin
         self.read_only = read_only
         self.show_deleted = show_deleted
@@ -135,7 +148,12 @@ class RequestContext(object):
 
     def get_logging_values(self):
         """Return a dictionary of logging specific context attributes."""
-        values = self.to_dict()
+        values = {'user_name': self.user_name,
+                  'project_name': self.project_name,
+                  'domain_name': self.domain_name,
+                  'user_domain_name': self.user_domain_name,
+                  'project_domain_name': self.project_domain_name}
+        values.update(self.to_dict())
         return values
 
     @classmethod
