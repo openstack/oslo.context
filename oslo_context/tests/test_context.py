@@ -14,8 +14,10 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 
+import fixtures
 import hashlib
 import uuid
+import warnings
 
 from oslotest import base as test_base
 
@@ -27,6 +29,21 @@ def generate_id(name):
     return hashlib.md5(name.encode('utf-8')).hexdigest()
 
 
+class WarningsFixture(fixtures.Fixture):
+
+    def __init__(self, action="always", category=DeprecationWarning):
+        super(WarningsFixture, self).__init__()
+        self.action = action
+        self.category = category
+
+    def setUp(self):
+        super(WarningsFixture, self).setUp()
+        self._w = warnings.catch_warnings(record=True)
+        self.log = self._w.__enter__()
+        self.addCleanup(self._w.__exit__)
+        warnings.simplefilter(self.action, self.category)
+
+
 class Object(object):
     pass
 
@@ -35,6 +52,7 @@ class ContextTest(test_base.BaseTestCase):
 
     def setUp(self):
         super(ContextTest, self).setUp()
+        self.warnings = self.useFixture(WarningsFixture())
         self.useFixture(fixture.ClearRequestContext())
 
     def test_context(self):
@@ -439,3 +457,10 @@ class ContextTest(test_base.BaseTestCase):
                           'roles': roles,
                           'is_admin_project': False},
                          ctx.to_policy_values())
+
+    def test_positional_args(self):
+        context.RequestContext('abc', 'def')
+
+        self.assertEqual(1, len(self.warnings.log))
+        self.assertIn('__init__ takes at most 1 positional',
+                      str(self.warnings.log[0].message))
