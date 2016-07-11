@@ -214,6 +214,10 @@ class ContextTest(test_base.BaseTestCase):
         ctx = context.RequestContext.from_environ(environ=environ)
         self.assertEqual([value], ctx.roles)
 
+        environ = {'HTTP_X_TENANT_NAME': value}
+        ctx = context.RequestContext.from_environ(environ=environ)
+        self.assertEqual(value, ctx.project_name)
+
     def test_from_environ_deprecated_precendence(self):
         old = uuid.uuid4().hex
         new = uuid.uuid4().hex
@@ -238,6 +242,12 @@ class ContextTest(test_base.BaseTestCase):
         ctx = context.RequestContext.from_environ(environ=environ,
                                                   tenant=override)
         self.assertEqual(ctx.tenant, override)
+
+        environ = {'HTTP_X_TENANT_NAME': old,
+                   'HTTP_X_PROJECT_NAME': new}
+
+        ctx = context.RequestContext.from_environ(environ=environ)
+        self.assertEqual(ctx.project_name, new)
 
     def test_from_environ_strip_roles(self):
         environ = {'HTTP_X_ROLES': ' abc\t,\ndef\n,ghi\n\n'}
