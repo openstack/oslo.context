@@ -73,11 +73,16 @@ class RequestContext(object):
                  read_only=False, show_deleted=False, request_id=None,
                  resource_uuid=None, overwrite=True, roles=None,
                  user_name=None, project_name=None, domain_name=None,
-                 user_domain_name=None, project_domain_name=None):
+                 user_domain_name=None, project_domain_name=None,
+                 is_admin_project=True):
         """Initialize the RequestContext
 
         :param overwrite: Set to False to ensure that the greenthread local
                           copy of the index is not overwritten.
+        :param is_admin_project: Whether the specified project is specified in
+                                 the token as the admin project. Defaults to
+                                 True for backwards compatibility.
+        :type is_admin_project: bool
         """
         self.auth_token = auth_token
         self.user = user
@@ -93,6 +98,7 @@ class RequestContext(object):
         self.project_domain = project_domain
         self.project_domain_name = project_domain_name
         self.is_admin = is_admin
+        self.is_admin_project = is_admin_project
         self.read_only = read_only
         self.show_deleted = show_deleted
         self.resource_uuid = resource_uuid
@@ -123,7 +129,8 @@ class RequestContext(object):
                 'user_domain_id': self.user_domain,
                 'project_id': self.tenant,
                 'project_domain_id': self.project_domain,
-                'roles': self.roles}
+                'roles': self.roles,
+                'is_admin_project': self.is_admin_project}
 
     def to_dict(self):
         """Return a dictionary of context attributes."""
@@ -146,7 +153,8 @@ class RequestContext(object):
                 'request_id': self.request_id,
                 'resource_uuid': self.resource_uuid,
                 'roles': self.roles,
-                'user_identity': user_idt}
+                'user_identity': user_idt,
+                'is_admin_project': self.is_admin_project}
 
     def get_logging_values(self):
         """Return a dictionary of logging specific context attributes."""
@@ -195,6 +203,13 @@ class RequestContext(object):
             roles = environ.get('HTTP_X_ROLES', environ.get('HTTP_X_ROLE'))
             roles = [r.strip() for r in roles.split(',')] if roles else []
             kwargs['roles'] = roles
+
+        if 'is_admin_project' not in kwargs:
+            # NOTE(jamielennox): we default is_admin_project to true because if
+            # nothing is provided we have to assume it is the admin project to
+            # make old policy continue to work.
+            is_admin_proj_str = environ.get('HTTP_X_IS_ADMIN_PROJECT', 'true')
+            kwargs['is_admin_project'] = is_admin_proj_str.lower() == 'true'
 
         return cls(**kwargs)
 

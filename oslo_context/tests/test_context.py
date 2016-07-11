@@ -244,6 +244,22 @@ class ContextTest(test_base.BaseTestCase):
         ctx = context.RequestContext.from_environ(environ=environ)
         self.assertEqual(['abc', 'def', 'ghi'], ctx.roles)
 
+    def test_environ_admin_project(self):
+        environ = {}
+        ctx = context.RequestContext.from_environ(environ=environ)
+        self.assertIs(True, ctx.is_admin_project)
+        self.assertIs(True, ctx.to_policy_values()['is_admin_project'])
+
+        environ = {'HTTP_X_IS_ADMIN_PROJECT': 'True'}
+        ctx = context.RequestContext.from_environ(environ=environ)
+        self.assertIs(True, ctx.is_admin_project)
+        self.assertIs(True, ctx.to_policy_values()['is_admin_project'])
+
+        environ = {'HTTP_X_IS_ADMIN_PROJECT': 'False'}
+        ctx = context.RequestContext.from_environ(environ=environ)
+        self.assertIs(False, ctx.is_admin_project)
+        self.assertIs(False, ctx.to_policy_values()['is_admin_project'])
+
     def test_from_function_and_args(self):
         ctx = context.RequestContext(user="user1")
         arg = []
@@ -393,6 +409,7 @@ class ContextTest(test_base.BaseTestCase):
         project_domain = uuid.uuid4().hex
         roles = [uuid.uuid4().hex, uuid.uuid4().hex, uuid.uuid4().hex]
 
+        # default is_admin_project is True
         ctx = context.RequestContext(user=user,
                                      user_domain=user_domain,
                                      tenant=tenant,
@@ -403,4 +420,22 @@ class ContextTest(test_base.BaseTestCase):
                           'user_domain_id': user_domain,
                           'project_id': tenant,
                           'project_domain_id': project_domain,
-                          'roles': roles}, ctx.to_policy_values())
+                          'roles': roles,
+                          'is_admin_project': True},
+                         ctx.to_policy_values())
+
+        # is_admin_project False gets passed through
+        ctx = context.RequestContext(user=user,
+                                     user_domain=user_domain,
+                                     tenant=tenant,
+                                     project_domain=project_domain,
+                                     roles=roles,
+                                     is_admin_project=False)
+
+        self.assertEqual({'user_id': user,
+                          'user_domain_id': user_domain,
+                          'project_id': tenant,
+                          'project_domain_id': project_domain,
+                          'roles': roles,
+                          'is_admin_project': False},
+                         ctx.to_policy_values())
