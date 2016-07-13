@@ -137,6 +137,25 @@ class ContextTest(test_base.BaseTestCase):
         self.assertTrue(ctx.read_only)
         self.assertRaises(KeyError, lambda: ctx.__dict__['color'])
 
+    def test_from_dict_overrides(self):
+        dct = {
+            "auth_token": "token1",
+            "user": "user1",
+            "read_only": True,
+            "roles": "role1,role2,role3",
+            "color": "red",
+            "unknown": ""
+        }
+        ctx = context.RequestContext.from_dict(dct,
+                                               user="user2",
+                                               project_name="project1")
+        self.assertEqual("token1", ctx.auth_token)
+        self.assertEqual("user2", ctx.user)
+        self.assertEqual("project1", ctx.project_name)
+        self.assertIsNone(ctx.tenant)
+        self.assertFalse(ctx.is_admin)
+        self.assertTrue(ctx.read_only)
+
     def test_is_user_context(self):
         self.assertFalse(context.is_user_context(None))
         ctx = context.RequestContext(is_admin=True)
