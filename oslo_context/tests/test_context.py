@@ -227,27 +227,27 @@ class ContextTest(test_base.BaseTestCase):
                    'HTTP_X_USER_ID': new}
 
         ctx = context.RequestContext.from_environ(environ=environ)
-        self.assertEqual(ctx.user, new)
+        self.assertEqual(new, ctx.user)
 
         ctx = context.RequestContext.from_environ(environ=environ,
                                                   user=override)
-        self.assertEqual(ctx.user, override)
+        self.assertEqual(override, ctx.user)
 
         environ = {'HTTP_X_TENANT': old,
                    'HTTP_X_PROJECT_ID': new}
 
         ctx = context.RequestContext.from_environ(environ=environ)
-        self.assertEqual(ctx.tenant, new)
+        self.assertEqual(new, ctx.tenant)
 
         ctx = context.RequestContext.from_environ(environ=environ,
                                                   tenant=override)
-        self.assertEqual(ctx.tenant, override)
+        self.assertEqual(override, ctx.tenant)
 
         environ = {'HTTP_X_TENANT_NAME': old,
                    'HTTP_X_PROJECT_NAME': new}
 
         ctx = context.RequestContext.from_environ(environ=environ)
-        self.assertEqual(ctx.project_name, new)
+        self.assertEqual(new, ctx.project_name)
 
     def test_from_environ_strip_roles(self):
         environ = {'HTTP_X_ROLES': ' abc\t,\ndef\n,ghi\n\n'}
