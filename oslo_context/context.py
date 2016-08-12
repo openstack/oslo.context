@@ -31,6 +31,8 @@ import itertools
 import threading
 import uuid
 
+from positional import positional
+
 
 _request_store = threading.local()
 
@@ -69,6 +71,7 @@ class RequestContext(object):
 
     user_idt_format = u'{user} {tenant} {domain} {user_domain} {p_domain}'
 
+    @positional(enforcement=positional.WARN)
     def __init__(self, auth_token=None, user=None, tenant=None, domain=None,
                  user_domain=None, project_domain=None, is_admin=False,
                  read_only=False, show_deleted=False, request_id=None,
