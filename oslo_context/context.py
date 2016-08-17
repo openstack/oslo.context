@@ -26,7 +26,6 @@ context or provide additional information in their specific WSGI pipeline
 or logging context.
 """
 
-import inspect
 import itertools
 import threading
 import uuid
@@ -171,12 +170,28 @@ class RequestContext(object):
         return values
 
     @classmethod
-    def from_dict(cls, values):
+    def from_dict(cls, values, **kwargs):
         """Construct a context object from a provided dictionary."""
-        allowed = [arg for arg in
-                   inspect.getargspec(RequestContext.__init__).args
-                   if arg != 'self']
-        kwargs = {k: v for (k, v) in values.items() if k in allowed}
+        kwargs.setdefault('auth_token', values.get('auth_token'))
+        kwargs.setdefault('user', values.get('user'))
+        kwargs.setdefault('tenant', values.get('tenant'))
+        kwargs.setdefault('domain', values.get('domain'))
+        kwargs.setdefault('user_domain', values.get('user_domain'))
+        kwargs.setdefault('project_domain', values.get('project_domain'))
+        kwargs.setdefault('is_admin', values.get('is_admin', False))
+        kwargs.setdefault('read_only', values.get('read_only', False))
+        kwargs.setdefault('show_deleted', values.get('show_deleted', False))
+        kwargs.setdefault('request_id', values.get('request_id'))
+        kwargs.setdefault('resource_uuid', values.get('resource_uuid'))
+        kwargs.setdefault('roles', values.get('roles'))
+        kwargs.setdefault('user_name', values.get('user_name'))
+        kwargs.setdefault('project_name', values.get('project_name'))
+        kwargs.setdefault('domain_name', values.get('domain_name'))
+        kwargs.setdefault('user_domain_name', values.get('user_domain_name'))
+        kwargs.setdefault('project_domain_name',
+                          values.get('project_domain_name'))
+        kwargs.setdefault('is_admin_project',
+                          values.get('is_admin_project', True))
         return cls(**kwargs)
 
     @classmethod
