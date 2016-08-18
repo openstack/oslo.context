@@ -233,7 +233,7 @@ class ContextTest(test_base.BaseTestCase):
 
         environ = {'HTTP_X_USER': value}
         ctx = context.RequestContext.from_environ(environ=environ)
-        self.assertEqual(value, ctx.user)
+        self.assertEqual(value, ctx.user_name)
 
         environ = {'HTTP_X_TENANT_ID': value}
         ctx = context.RequestContext.from_environ(environ=environ)
@@ -245,7 +245,7 @@ class ContextTest(test_base.BaseTestCase):
 
         environ = {'HTTP_X_TENANT': value}
         ctx = context.RequestContext.from_environ(environ=environ)
-        self.assertEqual(value, ctx.tenant)
+        self.assertEqual(value, ctx.project_name)
 
         environ = {'HTTP_X_ROLE': value}
         ctx = context.RequestContext.from_environ(environ=environ)
