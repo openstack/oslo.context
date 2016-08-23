@@ -6,9 +6,9 @@
 
 These files can be found in the doc/source/examples directory of
 the git source of this project.  They can also be found at the
-`online git respository`_ of this project.
+`online git repository`_ of this project.
 
-.. _online git respository: http://git.openstack.org/cgit/openstack/oslo.context/tree/doc/source/examples
+.. _online git repository: http://git.openstack.org/cgit/openstack/oslo.context/tree/doc/source/examples
 
 
 .. _example_usage_simple.py:
