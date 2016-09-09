@@ -14,7 +14,7 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-"""A respresentative usage example of Oslo Context
+"""A representative usage example of Oslo Context
 
 This example requires the following modules to be installed.
 
