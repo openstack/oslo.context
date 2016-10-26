@@ -162,12 +162,25 @@ class RequestContext(object):
     user_idt_format = u'{user} {tenant} {domain} {user_domain} {p_domain}'
 
     @positional(enforcement=positional.WARN)
-    def __init__(self, auth_token=None, user=None, tenant=None, domain=None,
-                 user_domain=None, project_domain=None, is_admin=False,
-                 read_only=False, show_deleted=False, request_id=None,
-                 resource_uuid=None, overwrite=True, roles=None,
-                 user_name=None, project_name=None, domain_name=None,
-                 user_domain_name=None, project_domain_name=None,
+    def __init__(self,
+                 auth_token=None,
+                 user=None,
+                 tenant=None,
+                 domain=None,
+                 user_domain=None,
+                 project_domain=None,
+                 is_admin=False,
+                 read_only=False,
+                 show_deleted=False,
+                 request_id=None,
+                 resource_uuid=None,
+                 overwrite=True,
+                 roles=None,
+                 user_name=None,
+                 project_name=None,
+                 domain_name=None,
+                 user_domain_name=None,
+                 project_domain_name=None,
                  is_admin_project=True):
         """Initialize the RequestContext
 
