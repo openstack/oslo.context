@@ -40,22 +40,34 @@ _request_store = threading.local()
 
 # These arguments will be passed to a new context from the first available
 # header to support backwards compatibility.
-_ENVIRON_HEADERS = {'auth_token': ['HTTP_X_AUTH_TOKEN',
-                                   'HTTP_X_STORAGE_TOKEN'],
-                    'user': ['HTTP_X_USER_ID',
-                             'HTTP_X_USER'],
-                    'tenant': ['HTTP_X_PROJECT_ID',
-                               'HTTP_X_TENANT_ID',
-                               'HTTP_X_TENANT'],
-                    'user_domain': ['HTTP_X_USER_DOMAIN_ID'],
-                    'project_domain': ['HTTP_X_PROJECT_DOMAIN_ID'],
-                    'user_name': ['HTTP_X_USER_NAME'],
-                    'project_name': ['HTTP_X_PROJECT_NAME',
-                                     'HTTP_X_TENANT_NAME'],
-                    'user_domain_name': ['HTTP_X_USER_DOMAIN_NAME'],
-                    'project_domain_name': ['HTTP_X_PROJECT_DOMAIN_NAME'],
-                    'request_id': ['openstack.request_id'],
-                    }
+_ENVIRON_HEADERS = {
+    'auth_token': ['HTTP_X_AUTH_TOKEN',
+                   'HTTP_X_STORAGE_TOKEN'],
+    'user': ['HTTP_X_USER_ID',
+             'HTTP_X_USER'],
+    'tenant': ['HTTP_X_PROJECT_ID',
+               'HTTP_X_TENANT_ID',
+               'HTTP_X_TENANT'],
+    'user_domain': ['HTTP_X_USER_DOMAIN_ID'],
+    'project_domain': ['HTTP_X_PROJECT_DOMAIN_ID'],
+    'user_name': ['HTTP_X_USER_NAME'],
+    'project_name': ['HTTP_X_PROJECT_NAME',
+                     'HTTP_X_TENANT_NAME'],
+    'user_domain_name': ['HTTP_X_USER_DOMAIN_NAME'],
+    'project_domain_name': ['HTTP_X_PROJECT_DOMAIN_NAME'],
+    'request_id': ['openstack.request_id'],
+
+
+    'service_token': ['HTTP_X_SERVICE_TOKEN'],
+    'service_user_id': ['HTTP_X_SERVICE_USER_ID'],
+    'service_user_name': ['HTTP_X_SERVICE_USER_NAME'],
+    'service_user_domain_id': ['HTTP_X_SERVICE_USER_DOMAIN_ID'],
+    'service_user_domain_name': ['HTTP_X_SERVICE_USER_DOMAIN_NAME'],
+    'service_project_id': ['HTTP_X_SERVICE_PROJECT_ID'],
+    'service_project_name': ['HTTP_X_SERVICE_PROJECT_NAME'],
+    'service_project_domain_id': ['HTTP_X_SERVICE_PROJECT_DOMAIN_ID'],
+    'service_project_domain_name': ['HTTP_X_SERVICE_PROJECT_DOMAIN_NAME'],
+}
 
 
 def generate_request_id():
@@ -181,7 +193,17 @@ class RequestContext(object):
                  domain_name=None,
                  user_domain_name=None,
                  project_domain_name=None,
-                 is_admin_project=True):
+                 is_admin_project=True,
+                 service_token=None,
+                 service_user_id=None,
+                 service_user_name=None,
+                 service_user_domain_id=None,
+                 service_user_domain_name=None,
+                 service_project_id=None,
+                 service_project_name=None,
+                 service_project_domain_id=None,
+                 service_project_domain_name=None,
+                 service_roles=None):
         """Initialize the RequestContext
 
         :param overwrite: Set to False to ensure that the greenthread local
@@ -210,6 +232,18 @@ class RequestContext(object):
         self.show_deleted = show_deleted
         self.resource_uuid = resource_uuid
         self.roles = roles or []
+
+        self.service_token = service_token
+        self.service_user_id = service_user_id
+        self.service_user_name = service_user_name
+        self.service_user_domain_id = service_user_domain_id
+        self.service_user_domain_name = service_user_domain_name
+        self.service_project_id = service_project_id
+        self.service_project_name = service_project_name
+        self.service_project_domain_id = service_project_domain_id
+        self.service_project_domain_name = service_project_domain_name
+        self.service_roles = service_roles or []
+
         if not request_id:
             request_id = generate_request_id()
         self.request_id = request_id
@@ -261,7 +295,12 @@ class RequestContext(object):
             'project_id': self.project_id,
             'project_domain_id': self.project_domain_id,
             'roles': self.roles,
-            'is_admin_project': self.is_admin_project})
+            'is_admin_project': self.is_admin_project,
+            'service_user_id': self.service_user_id,
+            'service_user_domain_id': self.service_user_domain_id,
+            'service_project_id': self.service_project_id,
+            'service_project_domain_id': self.service_project_domain_id,
+            'service_roles': self.service_roles})
 
     def to_dict(self):
         """Return a dictionary of context attributes."""
@@ -350,6 +389,11 @@ class RequestContext(object):
             roles = environ.get('HTTP_X_ROLES', environ.get('HTTP_X_ROLE'))
             roles = [r.strip() for r in roles.split(',')] if roles else []
             kwargs['roles'] = roles
+
+        if 'service_roles' not in kwargs:
+            roles = environ.get('HTTP_X_SERVICE_ROLES')
+            roles = [r.strip() for r in roles.split(',')] if roles else []
+            kwargs['service_roles'] = roles
 
         if 'is_admin_project' not in kwargs:
             # NOTE(jamielennox): we default is_admin_project to true because if
