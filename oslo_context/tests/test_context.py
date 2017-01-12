@@ -200,18 +200,40 @@ class ContextTest(test_base.BaseTestCase):
         project_domain_id = generate_id(project_domain_name)
         roles = [uuid.uuid4().hex, uuid.uuid4().hex, uuid.uuid4().hex]
         request_id = uuid.uuid4().hex
+        service_token = uuid.uuid4().hex
+        service_user_id = uuid.uuid4().hex
+        service_user_name = uuid.uuid4().hex
+        service_user_domain_id = uuid.uuid4().hex
+        service_user_domain_name = uuid.uuid4().hex
+        service_project_id = uuid.uuid4().hex
+        service_project_name = uuid.uuid4().hex
+        service_project_domain_id = uuid.uuid4().hex
+        service_project_domain_name = uuid.uuid4().hex
+        service_roles = [uuid.uuid4().hex, uuid.uuid4().hex, uuid.uuid4().hex]
 
-        environ = {'HTTP_X_AUTH_TOKEN': auth_token,
-                   'HTTP_X_USER_ID': user_id,
-                   'HTTP_X_PROJECT_ID': project_id,
-                   'HTTP_X_USER_DOMAIN_ID': user_domain_id,
-                   'HTTP_X_PROJECT_DOMAIN_ID': project_domain_id,
-                   'HTTP_X_ROLES': ','.join(roles),
-                   'HTTP_X_USER_NAME': user_name,
-                   'HTTP_X_PROJECT_NAME': project_name,
-                   'HTTP_X_USER_DOMAIN_NAME': user_domain_name,
-                   'HTTP_X_PROJECT_DOMAIN_NAME': project_domain_name,
-                   'openstack.request_id': request_id}
+        environ = {
+            'HTTP_X_AUTH_TOKEN': auth_token,
+            'HTTP_X_USER_ID': user_id,
+            'HTTP_X_PROJECT_ID': project_id,
+            'HTTP_X_USER_DOMAIN_ID': user_domain_id,
+            'HTTP_X_PROJECT_DOMAIN_ID': project_domain_id,
+            'HTTP_X_ROLES': ','.join(roles),
+            'HTTP_X_USER_NAME': user_name,
+            'HTTP_X_PROJECT_NAME': project_name,
+            'HTTP_X_USER_DOMAIN_NAME': user_domain_name,
+            'HTTP_X_PROJECT_DOMAIN_NAME': project_domain_name,
+            'HTTP_X_SERVICE_TOKEN': service_token,
+            'HTTP_X_SERVICE_USER_ID': service_user_id,
+            'HTTP_X_SERVICE_USER_NAME': service_user_name,
+            'HTTP_X_SERVICE_USER_DOMAIN_ID': service_user_domain_id,
+            'HTTP_X_SERVICE_USER_DOMAIN_NAME': service_user_domain_name,
+            'HTTP_X_SERVICE_PROJECT_ID': service_project_id,
+            'HTTP_X_SERVICE_PROJECT_NAME': service_project_name,
+            'HTTP_X_SERVICE_PROJECT_DOMAIN_ID': service_project_domain_id,
+            'HTTP_X_SERVICE_PROJECT_DOMAIN_NAME': service_project_domain_name,
+            'HTTP_X_SERVICE_ROLES': ','.join(service_roles),
+            'openstack.request_id': request_id,
+        }
 
         ctx = context.RequestContext.from_environ(environ)
 
@@ -226,6 +248,19 @@ class ContextTest(test_base.BaseTestCase):
         self.assertEqual(project_domain_name, ctx.project_domain_name)
         self.assertEqual(roles, ctx.roles)
         self.assertEqual(request_id, ctx.request_id)
+        self.assertEqual(service_token, ctx.service_token)
+        self.assertEqual(service_user_id, ctx.service_user_id)
+        self.assertEqual(service_user_name, ctx.service_user_name)
+        self.assertEqual(service_user_domain_id, ctx.service_user_domain_id)
+        self.assertEqual(service_user_domain_name,
+                         ctx.service_user_domain_name)
+        self.assertEqual(service_project_id, ctx.service_project_id)
+        self.assertEqual(service_project_name, ctx.service_project_name)
+        self.assertEqual(service_project_domain_id,
+                         ctx.service_project_domain_id)
+        self.assertEqual(service_project_domain_name,
+                         ctx.service_project_domain_name)
+        self.assertEqual(service_roles, ctx.service_roles)
 
     def test_from_environ_no_roles(self):
         ctx = context.RequestContext.from_environ(environ={})
@@ -293,9 +328,11 @@ class ContextTest(test_base.BaseTestCase):
         self.assertEqual(new, ctx.project_name)
 
     def test_from_environ_strip_roles(self):
-        environ = {'HTTP_X_ROLES': ' abc\t,\ndef\n,ghi\n\n'}
+        environ = {'HTTP_X_ROLES': ' abc\t,\ndef\n,ghi\n\n',
+                   'HTTP_X_SERVICE_ROLES': ' jkl\t,\nmno\n,pqr\n\n'}
         ctx = context.RequestContext.from_environ(environ=environ)
         self.assertEqual(['abc', 'def', 'ghi'], ctx.roles)
+        self.assertEqual(['jkl', 'mno', 'pqr'], ctx.service_roles)
 
     def test_environ_admin_project(self):
         environ = {}
@@ -461,20 +498,31 @@ class ContextTest(test_base.BaseTestCase):
         tenant = uuid.uuid4().hex
         project_domain = uuid.uuid4().hex
         roles = [uuid.uuid4().hex, uuid.uuid4().hex, uuid.uuid4().hex]
+        service_user_id = uuid.uuid4().hex
+        service_project_id = uuid.uuid4().hex
+        service_roles = [uuid.uuid4().hex, uuid.uuid4().hex, uuid.uuid4().hex]
 
         # default is_admin_project is True
         ctx = context.RequestContext(user=user,
                                      user_domain=user_domain,
                                      tenant=tenant,
                                      project_domain=project_domain,
-                                     roles=roles)
+                                     roles=roles,
+                                     service_user_id=service_user_id,
+                                     service_project_id=service_project_id,
+                                     service_roles=service_roles)
 
         self.assertEqual({'user_id': user,
                           'user_domain_id': user_domain,
                           'project_id': tenant,
                           'project_domain_id': project_domain,
                           'roles': roles,
-                          'is_admin_project': True},
+                          'is_admin_project': True,
+                          'service_user_id': service_user_id,
+                          'service_user_domain_id': None,
+                          'service_project_id': service_project_id,
+                          'service_project_domain_id': None,
+                          'service_roles': service_roles},
                          ctx.to_policy_values())
 
         ctx = context.RequestContext(user=user,
@@ -482,14 +530,22 @@ class ContextTest(test_base.BaseTestCase):
                                      tenant=tenant,
                                      project_domain=project_domain,
                                      roles=roles,
-                                     is_admin_project=False)
+                                     is_admin_project=False,
+                                     service_user_id=service_user_id,
+                                     service_project_id=service_project_id,
+                                     service_roles=service_roles)
 
         self.assertEqual({'user_id': user,
                           'user_domain_id': user_domain,
                           'project_id': tenant,
                           'project_domain_id': project_domain,
                           'roles': roles,
-                          'is_admin_project': False},
+                          'is_admin_project': False,
+                          'service_user_id': service_user_id,
+                          'service_user_domain_id': None,
+                          'service_project_id': service_project_id,
+                          'service_project_domain_id': None,
+                          'service_roles': service_roles},
                          ctx.to_policy_values())
 
     def test_positional_args(self):
