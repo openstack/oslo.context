@@ -43,6 +43,12 @@ class WarningsFixture(fixtures.Fixture):
         self.addCleanup(self._w.__exit__)
         warnings.simplefilter(self.action, self.category)
 
+    def __len__(self):
+        return len(self.log)
+
+    def __getitem__(self, item):
+        return self.log[item]
+
 
 class Object(object):
     pass
@@ -93,7 +99,7 @@ class ContextTest(test_base.BaseTestCase):
         self.assertIsInstance(ctx, context.RequestContext)
         self.assertTrue(ctx.is_admin)
         self.assertFalse(ctx.show_deleted)
-        self.assertIsNone(ctx.tenant)
+        self.assertIsNone(ctx.project_id)
 
     def test_admin_context_show_deleted_flag_set(self):
         ctx = context.get_admin_context(show_deleted=True)
@@ -122,11 +128,11 @@ class ContextTest(test_base.BaseTestCase):
         }
         ctx = context.RequestContext.from_dict(dct)
         self.assertEqual(dct['auth_token'], ctx.auth_token)
-        self.assertEqual(dct['user'], ctx.user)
-        self.assertEqual(dct['tenant'], ctx.tenant)
-        self.assertEqual(dct['domain'], ctx.domain)
-        self.assertEqual(dct['user_domain'], ctx.user_domain)
-        self.assertEqual(dct['project_domain'], ctx.project_domain)
+        self.assertEqual(dct['user'], ctx.user_id)
+        self.assertEqual(dct['tenant'], ctx.project_id)
+        self.assertEqual(dct['domain'], ctx.domain_id)
+        self.assertEqual(dct['user_domain'], ctx.user_domain_id)
+        self.assertEqual(dct['project_domain'], ctx.project_domain_id)
         self.assertTrue(ctx.is_admin)
         self.assertTrue(ctx.read_only)
         self.assertTrue(ctx.show_deleted)
@@ -149,8 +155,8 @@ class ContextTest(test_base.BaseTestCase):
         }
         ctx = context.RequestContext.from_dict(dct)
         self.assertEqual("token1", ctx.auth_token)
-        self.assertEqual("user1", ctx.user)
-        self.assertIsNone(ctx.tenant)
+        self.assertEqual("user1", ctx.user_id)
+        self.assertIsNone(ctx.project_id)
         self.assertFalse(ctx.is_admin)
         self.assertTrue(ctx.read_only)
         self.assertRaises(KeyError, lambda: ctx.__dict__['color'])
@@ -210,13 +216,13 @@ class ContextTest(test_base.BaseTestCase):
         ctx = context.RequestContext.from_environ(environ)
 
         self.assertEqual(auth_token, ctx.auth_token)
-        self.assertEqual(user_id, ctx.user)
+        self.assertEqual(user_id, ctx.user_id)
         self.assertEqual(user_name, ctx.user_name)
-        self.assertEqual(project_id, ctx.tenant)
+        self.assertEqual(project_id, ctx.project_id)
         self.assertEqual(project_name, ctx.project_name)
-        self.assertEqual(user_domain_id, ctx.user_domain)
+        self.assertEqual(user_domain_id, ctx.user_domain_id)
         self.assertEqual(user_domain_name, ctx.user_domain_name)
-        self.assertEqual(project_domain_id, ctx.project_domain)
+        self.assertEqual(project_domain_id, ctx.project_domain_id)
         self.assertEqual(project_domain_name, ctx.project_domain_name)
         self.assertEqual(roles, ctx.roles)
         self.assertEqual(request_id, ctx.request_id)
@@ -237,7 +243,7 @@ class ContextTest(test_base.BaseTestCase):
 
         environ = {'HTTP_X_TENANT_ID': value}
         ctx = context.RequestContext.from_environ(environ=environ)
-        self.assertEqual(value, ctx.tenant)
+        self.assertEqual(value, ctx.project_id)
 
         environ = {'HTTP_X_STORAGE_TOKEN': value}
         ctx = context.RequestContext.from_environ(environ=environ)
@@ -274,11 +280,11 @@ class ContextTest(test_base.BaseTestCase):
                    'HTTP_X_PROJECT_ID': new}
 
         ctx = context.RequestContext.from_environ(environ=environ)
-        self.assertEqual(new, ctx.tenant)
+        self.assertEqual(new, ctx.project_id)
 
         ctx = context.RequestContext.from_environ(environ=environ,
                                                   tenant=override)
-        self.assertEqual(override, ctx.tenant)
+        self.assertEqual(override, ctx.project_id)
 
         environ = {'HTTP_X_TENANT_NAME': old,
                    'HTTP_X_PROJECT_NAME': new}
@@ -358,15 +364,15 @@ class ContextTest(test_base.BaseTestCase):
                                      request_id=request_id,
                                      resource_uuid=resource_uuid)
         self.assertEqual(auth_token, ctx.auth_token)
-        self.assertEqual(user_id, ctx.user)
+        self.assertEqual(user_id, ctx.user_id)
         self.assertEqual(user_name, ctx.user_name)
-        self.assertEqual(project_id, ctx.tenant)
+        self.assertEqual(project_id, ctx.project_id)
         self.assertEqual(project_name, ctx.project_name)
-        self.assertEqual(domain_id, ctx.domain)
+        self.assertEqual(domain_id, ctx.domain_id)
         self.assertEqual(domain_name, ctx.domain_name)
-        self.assertEqual(user_domain_id, ctx.user_domain)
+        self.assertEqual(user_domain_id, ctx.user_domain_id)
         self.assertEqual(user_domain_name, ctx.user_domain_name)
-        self.assertEqual(project_domain_id, ctx.project_domain)
+        self.assertEqual(project_domain_id, ctx.project_domain_id)
         self.assertEqual(project_domain_name, ctx.project_domain_name)
         self.assertEqual(is_admin, ctx.is_admin)
         self.assertEqual(read_only, ctx.read_only)
@@ -521,3 +527,35 @@ class ContextTest(test_base.BaseTestCase):
             self.assertIs(val, policy[key])
             self.assertEqual(1, len(w))
             self.assertIn(key, str(w[0].message))
+
+    def test_deprecated_args(self):
+        user = uuid.uuid4().hex
+        tenant = uuid.uuid4().hex
+        domain = uuid.uuid4().hex
+        user_domain = uuid.uuid4().hex
+        project_domain = uuid.uuid4().hex
+
+        ctx = context.RequestContext(user=user,
+                                     tenant=tenant,
+                                     domain=domain,
+                                     user_domain=user_domain,
+                                     project_domain=project_domain)
+
+        self.assertEqual(0, len(self.warnings))
+        self.assertEqual(user, ctx.user_id)
+        self.assertEqual(tenant, ctx.project_id)
+        self.assertEqual(domain, ctx.domain_id)
+        self.assertEqual(user_domain, ctx.user_domain_id)
+        self.assertEqual(project_domain, ctx.project_domain_id)
+
+        self.assertEqual(0, len(self.warnings))
+        self.assertEqual(user, ctx.user)
+        self.assertEqual(1, len(self.warnings))
+        self.assertEqual(tenant, ctx.tenant)
+        self.assertEqual(2, len(self.warnings))
+        self.assertEqual(domain, ctx.domain)
+        self.assertEqual(3, len(self.warnings))
+        self.assertEqual(user_domain, ctx.user_domain)
+        self.assertEqual(4, len(self.warnings))
+        self.assertEqual(project_domain, ctx.project_domain)
+        self.assertEqual(5, len(self.warnings))
