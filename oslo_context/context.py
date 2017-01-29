@@ -35,7 +35,6 @@ import warnings
 import debtcollector
 from positional import positional
 
-
 _request_store = threading.local()
 
 # These arguments will be passed to a new context from the first available
@@ -131,16 +130,22 @@ class _DeprecatedPolicyValues(collections.MutableMapping):
         return d
 
 
+# FIXME(dims): Skip deprecation warnings until Pike (Version 2.14)
+_log_deprecation_warnings = False
+
+
 def _moved_msg(new_name, old_name):
     if old_name:
         deprecated_msg = "Property '%(old_name)s' has moved to '%(new_name)s'"
         deprecated_msg = deprecated_msg % {'old_name': old_name,
                                            'new_name': new_name}
 
-        debtcollector.deprecate(deprecated_msg,
-                                version='2.6',
-                                removal_version='3.0',
-                                stacklevel=5)
+        # FIXME(dims): Skip deprecation warnings until Pike (Version 2.14)
+        if _log_deprecation_warnings:
+            debtcollector.deprecate(deprecated_msg,
+                                    version='2.6',
+                                    removal_version='3.0',
+                                    stacklevel=5)
 
 
 def _moved_property(new_name, old_name=None, target=None):
