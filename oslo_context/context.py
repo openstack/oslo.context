@@ -55,6 +55,7 @@ _ENVIRON_HEADERS = {
     'user_domain_name': ['HTTP_X_USER_DOMAIN_NAME'],
     'project_domain_name': ['HTTP_X_PROJECT_DOMAIN_NAME'],
     'request_id': ['openstack.request_id'],
+    'global_request_id': ['openstack.global_request_id'],
 
 
     'service_token': ['HTTP_X_SERVICE_TOKEN'],
@@ -208,7 +209,8 @@ class RequestContext(object):
                  service_project_name=None,
                  service_project_domain_id=None,
                  service_project_domain_name=None,
-                 service_roles=None):
+                 service_roles=None,
+                 global_request_id=None):
         """Initialize the RequestContext
 
         :param overwrite: Set to False to ensure that the greenthread local
@@ -252,6 +254,7 @@ class RequestContext(object):
         if not request_id:
             request_id = generate_request_id()
         self.request_id = request_id
+        self.global_request_id = global_request_id
         if overwrite or not get_current():
             self.update_store()
 
@@ -326,6 +329,7 @@ class RequestContext(object):
                 'show_deleted': self.show_deleted,
                 'auth_token': self.auth_token,
                 'request_id': self.request_id,
+                'global_request_id': self.global_request_id,
                 'resource_uuid': self.resource_uuid,
                 'roles': self.roles,
                 'user_identity': user_idt,
@@ -354,6 +358,7 @@ class RequestContext(object):
         kwargs.setdefault('read_only', values.get('read_only', False))
         kwargs.setdefault('show_deleted', values.get('show_deleted', False))
         kwargs.setdefault('request_id', values.get('request_id'))
+        kwargs.setdefault('global_request_id', values.get('global_request_id'))
         kwargs.setdefault('resource_uuid', values.get('resource_uuid'))
         kwargs.setdefault('roles', values.get('roles'))
         kwargs.setdefault('user_name', values.get('user_name'))

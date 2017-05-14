@@ -123,6 +123,7 @@ class ContextTest(test_base.BaseTestCase):
             "read_only": True,
             "show_deleted": True,
             "request_id": "request1",
+            "global_request_id": "req-uuid",
             "resource_uuid": "instance1",
             "extra_data": "foo"
         }
@@ -137,6 +138,7 @@ class ContextTest(test_base.BaseTestCase):
         self.assertTrue(ctx.read_only)
         self.assertTrue(ctx.show_deleted)
         self.assertEqual(dct['request_id'], ctx.request_id)
+        self.assertEqual(dct['global_request_id'], ctx.global_request_id)
         self.assertEqual(dct['resource_uuid'], ctx.resource_uuid)
         self.assertEqual(dct['user_name'], ctx.user_name)
         self.assertEqual(dct['project_name'], ctx.project_name)
@@ -200,6 +202,7 @@ class ContextTest(test_base.BaseTestCase):
         project_domain_id = generate_id(project_domain_name)
         roles = [uuid.uuid4().hex, uuid.uuid4().hex, uuid.uuid4().hex]
         request_id = uuid.uuid4().hex
+        global_request_id = uuid.uuid4().hex
         service_token = uuid.uuid4().hex
         service_user_id = uuid.uuid4().hex
         service_user_name = uuid.uuid4().hex
@@ -233,6 +236,7 @@ class ContextTest(test_base.BaseTestCase):
             'HTTP_X_SERVICE_PROJECT_DOMAIN_NAME': service_project_domain_name,
             'HTTP_X_SERVICE_ROLES': ','.join(service_roles),
             'openstack.request_id': request_id,
+            'openstack.global_request_id': global_request_id,
         }
 
         ctx = context.RequestContext.from_environ(environ)
@@ -248,6 +252,7 @@ class ContextTest(test_base.BaseTestCase):
         self.assertEqual(project_domain_name, ctx.project_domain_name)
         self.assertEqual(roles, ctx.roles)
         self.assertEqual(request_id, ctx.request_id)
+        self.assertEqual(global_request_id, ctx.global_request_id)
         self.assertEqual(service_token, ctx.service_token)
         self.assertEqual(service_user_id, ctx.service_user_id)
         self.assertEqual(service_user_name, ctx.service_user_name)
@@ -382,6 +387,7 @@ class ContextTest(test_base.BaseTestCase):
         read_only = True
         show_deleted = True
         request_id = "id1"
+        global_request_id = "req-id1"
         resource_uuid = "uuid1"
 
         ctx = context.RequestContext(auth_token=auth_token,
@@ -399,6 +405,7 @@ class ContextTest(test_base.BaseTestCase):
                                      read_only=read_only,
                                      show_deleted=show_deleted,
                                      request_id=request_id,
+                                     global_request_id=global_request_id,
                                      resource_uuid=resource_uuid)
         self.assertEqual(auth_token, ctx.auth_token)
         self.assertEqual(user_id, ctx.user_id)
@@ -463,6 +470,7 @@ class ContextTest(test_base.BaseTestCase):
         self.assertIn('read_only', d)
         self.assertIn('show_deleted', d)
         self.assertIn('request_id', d)
+        self.assertIn('global_request_id', d)
         self.assertIn('resource_uuid', d)
         self.assertIn('user_identity', d)
         self.assertIn('roles', d)
@@ -491,6 +499,12 @@ class ContextTest(test_base.BaseTestCase):
         id1 = context.generate_request_id()
         id2 = context.generate_request_id()
         self.assertNotEqual(id1, id2)
+
+    def test_no_global_id_by_default(self):
+        ctx = context.RequestContext()
+        self.assertIsNone(ctx.global_request_id)
+        d = ctx.to_dict()
+        self.assertIsNone(d['global_request_id'])
 
     def test_policy_dict(self):
         user = uuid.uuid4().hex
