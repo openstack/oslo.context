@@ -345,6 +345,16 @@ class RequestContext(object):
         values.update(self.to_dict())
         return values
 
+    @property
+    def global_id(self):
+        """Return a sensible value for global_id to pass on.
+
+        When we want to make a call with to another service, it's
+        important that we try to use global_request_id if available,
+        and fall back to the locally generated request_id if not.
+        """
+        return self.global_request_id or self.request_id
+
     @classmethod
     def from_dict(cls, values, **kwargs):
         """Construct a context object from a provided dictionary."""
