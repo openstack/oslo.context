@@ -26,8 +26,8 @@ Source: :ref:`example_usage_simple.py`
     2016-01-20 21:56:29.283 8428 INFO __main__ [-] Message without context
     2016-01-20 21:56:29.284 8428 INFO __main__ [req-929d23e9-f50e-46ae-a8a7-02bc8c3fd2c8 - - - - -] Message with context
 
-The format of these log records are defined by the 
-`logging_default_format_string`_ and `logging_context_format_string`_ 
+The format of these log records are defined by the
+`logging_default_format_string`_ and `logging_context_format_string`_
 configuration options respectively. The `logging_user_identity_format`_ option
 also provides further context aware definition flexibility.
 
@@ -39,9 +39,12 @@ also provides further context aware definition flexibility.
 Context Variables
 -----------------
 
-The oslo.context variables used in the **logging_context_format_string** and 
+The oslo.context variables used in the **logging_context_format_string** and
 **logging_user_identity_format** configuration options include:
 
+* global_request_id - A request id
+  (e.g. req-9f2c484a-b504-4fd9-b44c-4357544cca50) which may have been
+  sent in from another service to indicate this is part of a chain of requests.
 * request_id - A request id (e.g. req-9f2c484a-b504-4fd9-b44c-4357544cca50)
 * user - A user id (e.g. e5bc7033e6b7473c9fe8ee1bd4df79a3)
 * tenant - A tenant/project id (e.g. 79e338475db84f7c91ee4e86b79b34c1)
