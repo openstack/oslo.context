@@ -393,7 +393,7 @@ class RequestContext(object):
         """
         # Load a new context object from the environment variables set by
         # auth_token middleware. See:
-        # http://docs.openstack.org/developer/keystonemiddleware/api/keystonemiddleware.auth_token.html#what-auth-token-adds-to-the-request-for-use-by-the-openstack-service
+        # https://docs.openstack.org/developer/keystonemiddleware/api/keystonemiddleware.auth_token.html#what-auth-token-adds-to-the-request-for-use-by-the-openstack-service
 
         # add kwarg if not specified by user from a list of possible headers
         for k, v_list in _ENVIRON_HEADERS.items():

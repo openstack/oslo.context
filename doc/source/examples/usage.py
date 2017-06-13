@@ -22,7 +22,7 @@ $ pip install oslo.context oslo.log
 
 More information can be found at:
 
-  http://docs.openstack.org/developer/oslo.context/usage.html
+  https://docs.openstack.org/developer/oslo.context/usage.html
 """
 
 from oslo_config import cfg

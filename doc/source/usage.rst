@@ -9,7 +9,7 @@ object.
 This code example demonstrates two INFO log records with varying output
 format due to the use of RequestContext.
 
-.. _oslo.log: http://docs.openstack.org/developer/oslo.log/
+.. _oslo.log: https://docs.openstack.org/developer/oslo.log/
 
 .. highlight:: python
 .. literalinclude:: examples/usage_simple.py
@@ -31,9 +31,9 @@ The format of these log records are defined by the
 configuration options respectively. The `logging_user_identity_format`_ option
 also provides further context aware definition flexibility.
 
-.. _logging_default_format_string: http://docs.openstack.org/developer/oslo.log/opts.html#logging_default_format_string
-.. _logging_context_format_string: http://docs.openstack.org/developer/oslo.log/opts.html#logging_context_format_string
-.. _logging_user_identity_format: http://docs.openstack.org/developer/oslo.log/opts.html#logging_user_identity_format
+.. _logging_default_format_string: https://docs.openstack.org/developer/oslo.log/opts.html#logging_default_format_string
+.. _logging_context_format_string: https://docs.openstack.org/developer/oslo.log/opts.html#logging_context_format_string
+.. _logging_user_identity_format: https://docs.openstack.org/developer/oslo.log/opts.html#logging_user_identity_format
 
 -----------------
 Context Variables
@@ -101,7 +101,7 @@ to provide additional attributes that can be using with oslo.log. The Nova
 `RequestContext`_ class for example provides additional variables including
 user_name and project_name.
 
-.. _RequestContext: http://git.openstack.org/cgit/openstack/nova/tree/nova/context.py
+.. _RequestContext: https://git.openstack.org/cgit/openstack/nova/tree/nova/context.py
 
 This can for example enable the defining of **logging_user_identity_format =
 %(user_name)s %(project_name)s** which would produce a log record
