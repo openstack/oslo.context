@@ -21,7 +21,7 @@ Source: :ref:`example_usage_simple.py`
 
 **Example Logging Output:**
 
-::
+.. code-block:: none
 
     2016-01-20 21:56:29.283 8428 INFO __main__ [-] Message without context
     2016-01-20 21:56:29.284 8428 INFO __main__ [req-929d23e9-f50e-46ae-a8a7-02bc8c3fd2c8 - - - - -] Message with context
@@ -65,7 +65,7 @@ Source: :ref:`example_usage.py`
 
 **Example Logging Output:**
 
-::
+.. code-block:: none
 
     2016-01-21 17:30:50.263 12201 INFO __main__ [-] Message without context
     2016-01-21 17:30:50.264 12201 INFO __main__ [req-e591e881-36c3-4627-a5d8-54df200168ef 6ce90b4d d6134462 - - a6b9360e] Message with context
@@ -80,7 +80,7 @@ message.
 
 **Example Logging Output:**
 
-::
+.. code-block:: none
 
     2016-01-21 22:43:55.621 17295 INFO __main__ [req-ac2d4a3a-ff3c-4c2b-97a0-2b76b33d9e72 ace90b4d b6134462 - - c6b9360e] Message with passed context
 
@@ -121,7 +121,7 @@ Source: :ref:`example_usage_user_identity.py`
 
 **Example Logging Output:**
 
-::
+.. code-block:: none
 
     2016-01-21 20:56:43.964 14816 INFO __main__ [-] Message without context
     2016-01-21 20:56:43.965 14816 INFO __main__ [req-abc 6ce90b4d/d6134462@a6b9360e] Message with context
