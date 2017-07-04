@@ -5,11 +5,9 @@ Contents:
 .. toctree::
    :maxdepth: 2
 
-   installation
-   usage
-   examples
-   contributing
-   history
+   install/index
+   user/index
+   contributor/index
 
 Code Documentation
 ==================
@@ -17,7 +15,7 @@ Code Documentation
 .. toctree::
    :maxdepth: 1
 
-   api/index
+   reference/index
 
 Indices and tables
 ==================

@@ -1,6 +1,6 @@
-==================
- oslo.context API
-==================
+=============
+API reference
+=============
 
 .. toctree::
    :maxdepth: 1
