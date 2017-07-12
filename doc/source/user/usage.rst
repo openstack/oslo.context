@@ -9,7 +9,7 @@ object.
 This code example demonstrates two INFO log records with varying output
 format due to the use of RequestContext.
 
-.. _oslo.log: https://docs.openstack.org/developer/oslo.log/
+.. _oslo.log: https://docs.openstack.org/oslo.log/latest/
 
 .. highlight:: python
 .. literalinclude:: examples/usage_simple.py
@@ -31,9 +31,9 @@ The format of these log records are defined by the
 configuration options respectively. The `logging_user_identity_format`_ option
 also provides further context aware definition flexibility.
 
-.. _logging_default_format_string: https://docs.openstack.org/developer/oslo.log/opts.html#logging_default_format_string
-.. _logging_context_format_string: https://docs.openstack.org/developer/oslo.log/opts.html#logging_context_format_string
-.. _logging_user_identity_format: https://docs.openstack.org/developer/oslo.log/opts.html#logging_user_identity_format
+.. _logging_default_format_string: https://docs.openstack.org/oslo.log/latest/configuration/index.html#DEFAULT.logging_default_format_string
+.. _logging_context_format_string: https://docs.openstack.org/oslo.log/latest/configuration/index.html#DEFAULT.logging_context_format_string
+.. _logging_user_identity_format: https://docs.openstack.org/oslo.log/latest/configuration/index.html#DEFAULT.logging_user_identity_format
 
 -----------------
 Context Variables

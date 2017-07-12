@@ -7,7 +7,7 @@ about a request context. The request context is usually populated in
 the WSGI pipeline and used by various modules such as logging.
 
 * License: Apache License, Version 2.0
-* Documentation: https://docs.openstack.org/developer/oslo.context
+* Documentation: https://docs.openstack.org/oslo.context/latest/
 * Source: https://git.openstack.org/cgit/openstack/oslo.context
 * Bugs: https://bugs.launchpad.net/oslo.context
 
