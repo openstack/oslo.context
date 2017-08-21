@@ -620,17 +620,12 @@ class ContextTest(test_base.BaseTestCase):
 
         self.assertEqual(0, len(self.warnings))
         self.assertEqual(user, ctx.user)
-        if context._log_deprecation_warnings:
-            self.assertEqual(1, len(self.warnings))
+        self.assertEqual(1, len(self.warnings))
         self.assertEqual(tenant, ctx.tenant)
-        if context._log_deprecation_warnings:
-            self.assertEqual(2, len(self.warnings))
+        self.assertEqual(2, len(self.warnings))
         self.assertEqual(domain, ctx.domain)
-        if context._log_deprecation_warnings:
-            self.assertEqual(3, len(self.warnings))
+        self.assertEqual(3, len(self.warnings))
         self.assertEqual(user_domain, ctx.user_domain)
-        if context._log_deprecation_warnings:
-            self.assertEqual(4, len(self.warnings))
+        self.assertEqual(4, len(self.warnings))
         self.assertEqual(project_domain, ctx.project_domain)
-        if context._log_deprecation_warnings:
-            self.assertEqual(5, len(self.warnings))
+        self.assertEqual(5, len(self.warnings))
