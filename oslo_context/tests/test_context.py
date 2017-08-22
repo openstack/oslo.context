@@ -562,13 +562,6 @@ class ContextTest(test_base.BaseTestCase):
                           'service_roles': service_roles},
                          ctx.to_policy_values())
 
-    def test_positional_args(self):
-        context.RequestContext('abc', 'def')
-
-        self.assertEqual(1, len(self.warnings.log))
-        self.assertIn('__init__ takes at most 1 positional',
-                      str(self.warnings.log[0].message))
-
     def test_policy_deprecations(self):
         user = uuid.uuid4().hex
         user_domain = uuid.uuid4().hex
