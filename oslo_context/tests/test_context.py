@@ -592,33 +592,33 @@ class ContextTest(test_base.BaseTestCase):
             self.assertIn(key, str(w[0].message))
 
     def test_deprecated_args(self):
-        user = uuid.uuid4().hex
-        tenant = uuid.uuid4().hex
-        domain = uuid.uuid4().hex
-        user_domain = uuid.uuid4().hex
-        project_domain = uuid.uuid4().hex
+        user_id = uuid.uuid4().hex
+        project_id = uuid.uuid4().hex
+        domain_id = uuid.uuid4().hex
+        user_domain_id = uuid.uuid4().hex
+        project_domain_id = uuid.uuid4().hex
 
-        ctx = context.RequestContext(user=user,
-                                     tenant=tenant,
-                                     domain=domain,
-                                     user_domain=user_domain,
-                                     project_domain=project_domain)
-
-        self.assertEqual(0, len(self.warnings))
-        self.assertEqual(user, ctx.user_id)
-        self.assertEqual(tenant, ctx.project_id)
-        self.assertEqual(domain, ctx.domain_id)
-        self.assertEqual(user_domain, ctx.user_domain_id)
-        self.assertEqual(project_domain, ctx.project_domain_id)
+        ctx = context.RequestContext(user_id=user_id,
+                                     project_id=project_id,
+                                     domain_id=domain_id,
+                                     user_domain_id=user_domain_id,
+                                     project_domain_id=project_domain_id)
 
         self.assertEqual(0, len(self.warnings))
-        self.assertEqual(user, ctx.user)
+        self.assertEqual(user_id, ctx.user_id)
+        self.assertEqual(project_id, ctx.project_id)
+        self.assertEqual(domain_id, ctx.domain_id)
+        self.assertEqual(user_domain_id, ctx.user_domain_id)
+        self.assertEqual(project_domain_id, ctx.project_domain_id)
+
+        self.assertEqual(0, len(self.warnings))
+        self.assertEqual(user_id, ctx.user)
         self.assertEqual(1, len(self.warnings))
-        self.assertEqual(tenant, ctx.tenant)
+        self.assertEqual(project_id, ctx.tenant)
         self.assertEqual(2, len(self.warnings))
-        self.assertEqual(domain, ctx.domain)
+        self.assertEqual(domain_id, ctx.domain)
         self.assertEqual(3, len(self.warnings))
-        self.assertEqual(user_domain, ctx.user_domain)
+        self.assertEqual(user_domain_id, ctx.user_domain)
         self.assertEqual(4, len(self.warnings))
-        self.assertEqual(project_domain, ctx.project_domain)
+        self.assertEqual(project_domain_id, ctx.project_domain)
         self.assertEqual(5, len(self.warnings))

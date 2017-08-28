@@ -27,12 +27,14 @@ or logging context.
 """
 
 import collections
+import functools
 import itertools
 import threading
 import uuid
 import warnings
 
 import debtcollector
+from debtcollector import renames
 
 
 _request_store = threading.local()
@@ -42,13 +44,13 @@ _request_store = threading.local()
 _ENVIRON_HEADERS = {
     'auth_token': ['HTTP_X_AUTH_TOKEN',
                    'HTTP_X_STORAGE_TOKEN'],
-    'user': ['HTTP_X_USER_ID',
-             'HTTP_X_USER'],
-    'tenant': ['HTTP_X_PROJECT_ID',
-               'HTTP_X_TENANT_ID',
-               'HTTP_X_TENANT'],
-    'user_domain': ['HTTP_X_USER_DOMAIN_ID'],
-    'project_domain': ['HTTP_X_PROJECT_DOMAIN_ID'],
+    'user_id': ['HTTP_X_USER_ID',
+                'HTTP_X_USER'],
+    'project_id': ['HTTP_X_PROJECT_ID',
+                   'HTTP_X_TENANT_ID',
+                   'HTTP_X_TENANT'],
+    'user_domain_id': ['HTTP_X_USER_DOMAIN_ID'],
+    'project_domain_id': ['HTTP_X_PROJECT_DOMAIN_ID'],
     'user_name': ['HTTP_X_USER_NAME'],
     'project_name': ['HTTP_X_PROJECT_NAME',
                      'HTTP_X_TENANT_NAME'],
@@ -163,6 +165,12 @@ def _moved_property(new_name, old_name=None, target=None):
     return property(getter, setter, deleter)
 
 
+_renamed_kwarg = functools.partial(renames.renamed_kwarg,
+                                   version='2.18',
+                                   removal_version='3.0',
+                                   replace=True)
+
+
 class RequestContext(object):
 
     """Helper class to represent useful information about a request context.
@@ -173,13 +181,18 @@ class RequestContext(object):
 
     user_idt_format = u'{user} {tenant} {domain} {user_domain} {p_domain}'
 
+    @_renamed_kwarg('user', 'user_id')
+    @_renamed_kwarg('tenant', 'project_id')
+    @_renamed_kwarg('domain', 'domain_id')
+    @_renamed_kwarg('user_domain', 'user_domain_id')
+    @_renamed_kwarg('project_domain', 'project_domain_id')
     def __init__(self,
                  auth_token=None,
-                 user=None,
-                 tenant=None,
-                 domain=None,
-                 user_domain=None,
-                 project_domain=None,
+                 user_id=None,
+                 project_id=None,
+                 domain_id=None,
+                 user_domain_id=None,
+                 project_domain_id=None,
                  is_admin=False,
                  read_only=False,
                  show_deleted=False,
@@ -214,11 +227,11 @@ class RequestContext(object):
         :type is_admin_project: bool
         """
         # setting to private variables to avoid triggering subclass properties
-        self._user_id = user
-        self._project_id = tenant
-        self._domain_id = domain
-        self._user_domain_id = user_domain
-        self._project_domain_id = project_domain
+        self._user_id = user_id
+        self._project_id = project_id
+        self._domain_id = domain_id
+        self._user_domain_id = user_domain_id
+        self._project_domain_id = project_domain_id
 
         self.auth_token = auth_token
         self.user_name = user_name
@@ -349,14 +362,19 @@ class RequestContext(object):
         return self.global_request_id or self.request_id
 
     @classmethod
+    @_renamed_kwarg('user', 'user_id')
+    @_renamed_kwarg('tenant', 'project_id')
+    @_renamed_kwarg('domain', 'domain_id')
+    @_renamed_kwarg('user_domain', 'user_domain_id')
+    @_renamed_kwarg('project_domain', 'project_domain_id')
     def from_dict(cls, values, **kwargs):
         """Construct a context object from a provided dictionary."""
         kwargs.setdefault('auth_token', values.get('auth_token'))
-        kwargs.setdefault('user', values.get('user'))
-        kwargs.setdefault('tenant', values.get('tenant'))
-        kwargs.setdefault('domain', values.get('domain'))
-        kwargs.setdefault('user_domain', values.get('user_domain'))
-        kwargs.setdefault('project_domain', values.get('project_domain'))
+        kwargs.setdefault('user_id', values.get('user'))
+        kwargs.setdefault('project_id', values.get('tenant'))
+        kwargs.setdefault('domain_id', values.get('domain'))
+        kwargs.setdefault('user_domain_id', values.get('user_domain'))
+        kwargs.setdefault('project_domain_id', values.get('project_domain'))
         kwargs.setdefault('is_admin', values.get('is_admin', False))
         kwargs.setdefault('read_only', values.get('read_only', False))
         kwargs.setdefault('show_deleted', values.get('show_deleted', False))
@@ -375,6 +393,11 @@ class RequestContext(object):
         return cls(**kwargs)
 
     @classmethod
+    @_renamed_kwarg('user', 'user_id')
+    @_renamed_kwarg('tenant', 'project_id')
+    @_renamed_kwarg('domain', 'domain_id')
+    @_renamed_kwarg('user_domain', 'user_domain_id')
+    @_renamed_kwarg('project_domain', 'project_domain_id')
     def from_environ(cls, environ, **kwargs):
         """Load a context object from a request environment.
 
@@ -421,7 +444,7 @@ class RequestContext(object):
 def get_admin_context(show_deleted=False):
     """Create an administrator context."""
     context = RequestContext(None,
-                             tenant=None,
+                             project_id=None,
                              is_admin=True,
                              show_deleted=show_deleted,
                              overwrite=False)
