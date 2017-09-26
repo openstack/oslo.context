@@ -327,6 +327,7 @@ class RequestContext(object):
 
         return {'user': self.user_id,
                 'tenant': self.project_id,
+                'project': self.project_id,
                 'domain': self.domain_id,
                 'user_domain': self.user_domain_id,
                 'project_domain': self.project_domain_id,
