@@ -54,6 +54,24 @@ class Object(object):
     pass
 
 
+class TestContext(context.RequestContext):
+    """A test context with additional members
+
+    This is representative of how at least some of our consumers use the
+    RequestContext class in their projects.
+    """
+    FROM_DICT_EXTRA_KEYS = ['foo']
+
+    def __init__(self, foo=None, **kwargs):
+        super(TestContext, self).__init__(**kwargs)
+        self.foo = foo
+
+    def to_dict(self):
+        d = super(TestContext, self).to_dict()
+        d['foo'] = self.foo
+        return d
+
+
 class ContextTest(test_base.BaseTestCase):
 
     def setUp(self):
@@ -181,6 +199,13 @@ class ContextTest(test_base.BaseTestCase):
         self.assertIsNone(ctx.tenant)
         self.assertFalse(ctx.is_admin)
         self.assertTrue(ctx.read_only)
+
+    def test_from_dict_extended(self):
+        initial = TestContext(foo='bar')
+        dct = initial.to_dict()
+        final = TestContext.from_dict(dct)
+        self.assertEqual('bar', final.foo)
+        self.assertEqual(dct, final.to_dict())
 
     def test_is_user_context(self):
         self.assertFalse(context.is_user_context(None))

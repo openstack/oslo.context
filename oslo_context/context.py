@@ -180,6 +180,9 @@ class RequestContext(object):
     """
 
     user_idt_format = u'{user} {tenant} {domain} {user_domain} {p_domain}'
+    # Can be overridden in subclasses to specify extra keys that should be
+    # read when constructing a context using from_dict.
+    FROM_DICT_EXTRA_KEYS = []
 
     @_renamed_kwarg('user', 'user_id')
     @_renamed_kwarg('tenant', 'project_id')
@@ -391,6 +394,8 @@ class RequestContext(object):
                           values.get('project_domain_name'))
         kwargs.setdefault('is_admin_project',
                           values.get('is_admin_project', True))
+        for key in cls.FROM_DICT_EXTRA_KEYS:
+            kwargs.setdefault(key, values.get(key))
         return cls(**kwargs)
 
     @classmethod
