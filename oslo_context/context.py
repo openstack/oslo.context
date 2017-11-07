@@ -353,6 +353,13 @@ class RequestContext(object):
                   'user_domain_name': self.user_domain_name,
                   'project_domain_name': self.project_domain_name}
         values.update(self.to_dict())
+        if self.auth_token:
+            # NOTE(jaosorior): Gotta obfuscate the token since this dict is
+            # meant for logging and we shouldn't leak it.
+            values['auth_token'] = '***'
+        else:
+            values['auth_token'] = None
+
         return values
 
     @property

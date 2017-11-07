@@ -486,6 +486,7 @@ class ContextTest(test_base.BaseTestCase):
 
         d = ctx.get_logging_values()
         self.assertIn('auth_token', d)
+        self.assertEqual(d['auth_token'], '***')
         self.assertIn('user', d)
         self.assertIn('tenant', d)
         self.assertIn('domain', d)
