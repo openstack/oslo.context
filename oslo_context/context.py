@@ -49,6 +49,7 @@ _ENVIRON_HEADERS = {
     'project_id': ['HTTP_X_PROJECT_ID',
                    'HTTP_X_TENANT_ID',
                    'HTTP_X_TENANT'],
+    'system_scope': ['HTTP_OPENSTACK_SYSTEM_SCOPE'],
     'user_domain_id': ['HTTP_X_USER_DOMAIN_ID'],
     'project_domain_id': ['HTTP_X_PROJECT_DOMAIN_ID'],
     'user_name': ['HTTP_X_USER_NAME'],
@@ -219,7 +220,8 @@ class RequestContext(object):
                  service_project_domain_id=None,
                  service_project_domain_name=None,
                  service_roles=None,
-                 global_request_id=None):
+                 global_request_id=None,
+                 system_scope=None):
         """Initialize the RequestContext
 
         :param overwrite: Set to False to ensure that the greenthread local
@@ -228,6 +230,11 @@ class RequestContext(object):
                                  the token as the admin project. Defaults to
                                  True for backwards compatibility.
         :type is_admin_project: bool
+        :param system_scope: The system scope of a token. The value ``all``
+                             represents the entire deployment system. A service
+                             ID represents a specific service within the
+                             deployment system.
+        :type system_scope: string
         """
         # setting to private variables to avoid triggering subclass properties
         self._user_id = user_id
@@ -240,6 +247,7 @@ class RequestContext(object):
         self.user_name = user_name
         self.project_name = project_name
         self.domain_name = domain_name
+        self.system_scope = system_scope
         self.user_domain_name = user_domain_name
         self.project_domain_name = project_domain_name
         self.is_admin = is_admin
@@ -309,6 +317,7 @@ class RequestContext(object):
         return _DeprecatedPolicyValues({
             'user_id': self.user_id,
             'user_domain_id': self.user_domain_id,
+            'system_scope': self.system_scope,
             'project_id': self.project_id,
             'project_domain_id': self.project_domain_id,
             'roles': self.roles,
@@ -330,6 +339,7 @@ class RequestContext(object):
 
         return {'user': self.user_id,
                 'tenant': self.project_id,
+                'system_scope': self.system_scope,
                 'project': self.project_id,
                 'domain': self.domain_id,
                 'user_domain': self.user_domain_id,

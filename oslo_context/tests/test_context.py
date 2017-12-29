@@ -554,8 +554,35 @@ class ContextTest(test_base.BaseTestCase):
 
         self.assertEqual({'user_id': user,
                           'user_domain_id': user_domain,
+                          'system_scope': None,
                           'project_id': tenant,
                           'project_domain_id': project_domain,
+                          'roles': roles,
+                          'is_admin_project': True,
+                          'service_user_id': service_user_id,
+                          'service_user_domain_id': None,
+                          'service_project_id': service_project_id,
+                          'service_project_domain_id': None,
+                          'service_roles': service_roles},
+                         ctx.to_policy_values())
+
+        # NOTE(lbragstad): This string has special meaning in that the value
+        # ``all`` represents the entire deployment system.
+        system_all = 'all'
+
+        ctx = context.RequestContext(user=user,
+                                     user_domain=user_domain,
+                                     system_scope=system_all,
+                                     roles=roles,
+                                     service_user_id=service_user_id,
+                                     service_project_id=service_project_id,
+                                     service_roles=service_roles)
+
+        self.assertEqual({'user_id': user,
+                          'user_domain_id': user_domain,
+                          'system_scope': system_all,
+                          'project_id': None,
+                          'project_domain_id': None,
                           'roles': roles,
                           'is_admin_project': True,
                           'service_user_id': service_user_id,
@@ -577,6 +604,7 @@ class ContextTest(test_base.BaseTestCase):
 
         self.assertEqual({'user_id': user,
                           'user_domain_id': user_domain,
+                          'system_scope': None,
                           'project_id': tenant,
                           'project_domain_id': project_domain,
                           'roles': roles,
