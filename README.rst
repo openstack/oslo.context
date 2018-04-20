@@ -20,9 +20,9 @@ Team and repository tags
 .. Change things from this point on
 
 .. image:: https://img.shields.io/pypi/v/oslo.context.svg
-    :target: https://pypi.python.org/pypi/oslo.context/
+    :target: https://pypi.org/project/oslo.context/
     :alt: Latest Version
 
 .. image:: https://img.shields.io/pypi/dm/oslo.context.svg
-    :target: https://pypi.python.org/pypi/oslo.context/
+    :target: https://pypi.org/project/oslo.context/
     :alt: Downloads
