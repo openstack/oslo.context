@@ -10,6 +10,7 @@ the WSGI pipeline and used by various modules such as logging.
 * Documentation: https://docs.openstack.org/oslo.context/latest/
 * Source: https://git.openstack.org/cgit/openstack/oslo.context
 * Bugs: https://bugs.launchpad.net/oslo.context
+* Release notes:  https://docs.openstack.org/releasenotes/oslo.context/
 
 Team and repository tags
 ========================
