@@ -221,6 +221,8 @@ class ContextTest(test_base.BaseTestCase):
         user_id = generate_id(user_name)
         project_name = uuid.uuid4().hex
         project_id = generate_id(project_name)
+        domain_name = uuid.uuid4().hex
+        domain_id = generate_id(domain_name)
         user_domain_name = uuid.uuid4().hex
         user_domain_id = generate_id(user_domain_name)
         project_domain_name = uuid.uuid4().hex
@@ -243,6 +245,7 @@ class ContextTest(test_base.BaseTestCase):
             'HTTP_X_AUTH_TOKEN': auth_token,
             'HTTP_X_USER_ID': user_id,
             'HTTP_X_PROJECT_ID': project_id,
+            'HTTP_X_DOMAIN_ID': domain_id,
             'HTTP_X_USER_DOMAIN_ID': user_domain_id,
             'HTTP_X_PROJECT_DOMAIN_ID': project_domain_id,
             'HTTP_X_ROLES': ','.join(roles),
@@ -270,6 +273,7 @@ class ContextTest(test_base.BaseTestCase):
         self.assertEqual(user_id, ctx.user_id)
         self.assertEqual(user_name, ctx.user_name)
         self.assertEqual(project_id, ctx.project_id)
+        self.assertEqual(domain_id, ctx.domain_id)
         self.assertEqual(project_name, ctx.project_name)
         self.assertEqual(user_domain_id, ctx.user_domain_id)
         self.assertEqual(user_domain_name, ctx.user_domain_name)
@@ -555,6 +559,7 @@ class ContextTest(test_base.BaseTestCase):
         self.assertEqual({'user_id': user,
                           'user_domain_id': user_domain,
                           'system_scope': None,
+                          'domain_id': None,
                           'project_id': tenant,
                           'project_domain_id': project_domain,
                           'roles': roles,
@@ -581,6 +586,32 @@ class ContextTest(test_base.BaseTestCase):
         self.assertEqual({'user_id': user,
                           'user_domain_id': user_domain,
                           'system_scope': system_all,
+                          'domain_id': None,
+                          'project_id': None,
+                          'project_domain_id': None,
+                          'roles': roles,
+                          'is_admin_project': True,
+                          'service_user_id': service_user_id,
+                          'service_user_domain_id': None,
+                          'service_project_id': service_project_id,
+                          'service_project_domain_id': None,
+                          'service_roles': service_roles},
+                         ctx.to_policy_values())
+
+        # context representing a domain-scoped token.
+        domain_id = uuid.uuid4().hex
+        ctx = context.RequestContext(user=user,
+                                     user_domain=user_domain,
+                                     domain_id=domain_id,
+                                     roles=roles,
+                                     service_user_id=service_user_id,
+                                     service_project_id=service_project_id,
+                                     service_roles=service_roles)
+
+        self.assertEqual({'user_id': user,
+                          'user_domain_id': user_domain,
+                          'system_scope': None,
+                          'domain_id': domain_id,
                           'project_id': None,
                           'project_domain_id': None,
                           'roles': roles,
@@ -605,6 +636,7 @@ class ContextTest(test_base.BaseTestCase):
         self.assertEqual({'user_id': user,
                           'user_domain_id': user_domain,
                           'system_scope': None,
+                          'domain_id': None,
                           'project_id': tenant,
                           'project_domain_id': project_domain,
                           'roles': roles,
