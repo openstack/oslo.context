@@ -8,7 +8,7 @@ These files can be found in the doc/source/examples directory of
 the git source of this project.  They can also be found at the
 `online git repository`_ of this project.
 
-.. _online git repository: https://git.openstack.org/cgit/openstack/oslo.context/tree/doc/source/examples
+.. _online git repository: https://opendev.org/openstack/oslo.context/src/branch/master/doc/source/user/examples
 
 
 .. _example_usage_simple.py:
