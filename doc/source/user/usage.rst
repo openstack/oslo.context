@@ -101,7 +101,7 @@ to provide additional attributes that can be using with oslo.log. The Nova
 `RequestContext`_ class for example provides additional variables including
 user_name and project_name.
 
-.. _RequestContext: https://git.openstack.org/cgit/openstack/nova/tree/nova/context.py
+.. _RequestContext: https://opendev.org/openstack/nova/src/branch/master/nova/context.py
 
 This can for example enable the defining of **logging_user_identity_format =
 %(user_name)s %(project_name)s** which would produce a log record
