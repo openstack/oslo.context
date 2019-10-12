@@ -58,11 +58,6 @@ pygments_style = 'sphinx'
 # html_static_path = ['static']
 html_theme = 'openstackdocs'
 
-# If not '', a 'Last updated on:' timestamp is inserted at every page bottom,
-# using the given strftime format.
-# html_last_updated_fmt = '%b %d, %Y'
-html_last_updated_fmt = '%Y-%m-%d %H:%M'
-
 # Output file base name for HTML help builder.
 htmlhelp_basename = '%sdoc' % project
 
