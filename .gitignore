@@ -53,5 +53,7 @@ doc/build
 AUTHORS
 ChangeLog
 
-# reno build
+# Files created by releasenotes build
 releasenotes/build
+releasenotes/notes/reno.cache
+RELEASENOTES.rst
