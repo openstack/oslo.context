@@ -60,15 +60,15 @@ class TestContext(context.RequestContext):
     This is representative of how at least some of our consumers use the
     RequestContext class in their projects.
     """
-    FROM_DICT_EXTRA_KEYS = ['foo']
+    FROM_DICT_EXTRA_KEYS = ['auth_token_info']
 
-    def __init__(self, foo=None, **kwargs):
+    def __init__(self, auth_token_info=None, **kwargs):
         super(TestContext, self).__init__(**kwargs)
-        self.foo = foo
+        self.auth_token_info = auth_token_info
 
     def to_dict(self):
         d = super(TestContext, self).to_dict()
-        d['foo'] = self.foo
+        d['auth_token_info'] = self.auth_token_info
         return d
 
 
@@ -201,10 +201,10 @@ class ContextTest(test_base.BaseTestCase):
         self.assertTrue(ctx.read_only)
 
     def test_from_dict_extended(self):
-        initial = TestContext(foo='bar')
+        initial = TestContext(auth_token_info='foo')
         dct = initial.to_dict()
         final = TestContext.from_dict(dct)
-        self.assertEqual('bar', final.foo)
+        self.assertEqual('foo', final.auth_token_info)
         self.assertEqual(dct, final.to_dict())
 
     def test_is_user_context(self):
@@ -515,6 +515,11 @@ class ContextTest(test_base.BaseTestCase):
         self.assertEqual(domain_name, d['domain_name'])
         self.assertEqual(user_domain_name, d['user_domain_name'])
         self.assertEqual(project_domain_name, d['project_domain_name'])
+
+    def test_auth_token_info_removed(self):
+        ctx = TestContext(auth_token_info={'auth_token': 'topsecret'})
+        d = ctx.get_logging_values()
+        self.assertNotIn('auth_token_info', d)
 
     def test_dict_empty_user_identity(self):
         ctx = context.RequestContext()
