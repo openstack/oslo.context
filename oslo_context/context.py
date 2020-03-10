@@ -371,6 +371,12 @@ class RequestContext(object):
             values['auth_token'] = '***'
         else:
             values['auth_token'] = None
+        # NOTE(bnemec: auth_token_info isn't defined in oslo.context, but it's
+        # a common pattern in project context subclasses so we handle it here.
+        # It largely contains things that we don't want logged, like the token
+        # itself (which needs to be removed for security) and the catalog
+        # (which needs to be removed because it bloats the logs terribly).
+        values.pop('auth_token_info', None)
 
         return values
 
