@@ -72,9 +72,9 @@ latex_documents = [
 ]
 
 # openstackdocstheme options
-repository_name = 'openstack/oslo.context'
-bug_project = 'oslo.context'
-bug_tag = ''
+openstackdocs_repo_name = 'openstack/oslo.context'
+openstackdocs_bug_project = 'oslo.context'
+openstackdocs_bug_tag = ''
 
 # Example configuration for intersphinx: refer to the Python standard library.
 #intersphinx_mapping = {'http://docs.python.org/': None}
