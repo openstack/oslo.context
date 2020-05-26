@@ -18,6 +18,12 @@ Code Documentation
 
    reference/index
 
+Release Notes
+=============
+
+Read also the `oslo.context Release Notes
+<https://docs.openstack.org/releasenotes/oslo.context/>`_.
+
 Indices and tables
 ==================
 
