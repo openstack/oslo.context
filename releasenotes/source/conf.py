@@ -91,14 +91,13 @@ exclude_patterns = []
 # show_authors = False
 
 # The name of the Pygments (syntax highlighting) style to use.
-pygments_style = 'sphinx'
+pygments_style = 'native'
 
 # A list of ignored prefixes for module index sorting.
 # modindex_common_prefix = []
 
 # If true, keep warnings as "system message" paragraphs in the built documents.
 # keep_warnings = False
-
 
 # -- Options for HTML output ----------------------------------------------
 
@@ -180,7 +179,6 @@ html_static_path = ['_static']
 # Output file base name for HTML help builder.
 htmlhelp_basename = 'oslo.contextReleaseNotesDoc'
 
-
 # -- Options for LaTeX output ---------------------------------------------
 
 # Grouping the document tree into LaTeX files. List of tuples
@@ -212,7 +210,6 @@ latex_documents = [
 # If false, no module index is generated.
 # latex_domain_indices = True
 
-
 # -- Options for manual page output ---------------------------------------
 
 # One entry per manual page. List of tuples
@@ -225,7 +222,6 @@ man_pages = [
 
 # If true, show URL addresses after external links.
 # man_show_urls = False
-
 
 # -- Options for Texinfo output -------------------------------------------
 
