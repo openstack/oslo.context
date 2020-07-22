@@ -24,7 +24,7 @@ class ClearRequestContext(fixtures.Fixture):
     run later in the same process.
     """
 
-    def setUp(self):
+    def setUp(self) -> None:
         super(ClearRequestContext, self).setUp()
         # we need to clear both when we start, and when we finish,
         # because there might be other tests running that don't handle
@@ -32,7 +32,7 @@ class ClearRequestContext(fixtures.Fixture):
         self._remove_cached_context()
         self.addCleanup(self._remove_cached_context)
 
-    def _remove_cached_context(self):
+    def _remove_cached_context(self) -> None:
         """Remove the thread-local context stored in the module."""
         try:
             del context._request_store.context
