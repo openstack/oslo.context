@@ -368,7 +368,7 @@ class RequestContext(object):
         if self.auth_token:
             # NOTE(jaosorior): Gotta obfuscate the token since this dict is
             # meant for logging and we shouldn't leak it.
-            values['auth_token'] = '***'
+            values['auth_token'] = '***'  # nosec
         else:
             values['auth_token'] = None
         # NOTE(bnemec: auth_token_info isn't defined in oslo.context, but it's
