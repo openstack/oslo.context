@@ -26,7 +26,7 @@ context or provide additional information in their specific WSGI pipeline
 or logging context.
 """
 
-import collections
+import collections.abc
 import functools
 import itertools
 import threading
@@ -79,7 +79,7 @@ def generate_request_id():
     return 'req-%s' % uuid.uuid4()
 
 
-class _DeprecatedPolicyValues(collections.MutableMapping):
+class _DeprecatedPolicyValues(collections.abc.MutableMapping):
     """A Dictionary that manages current and deprecated policy values.
 
     Anything added to this dictionary after initial creation is considered a
