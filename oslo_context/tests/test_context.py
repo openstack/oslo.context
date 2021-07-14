@@ -143,7 +143,8 @@ class ContextTest(test_base.BaseTestCase):
             "request_id": "request1",
             "global_request_id": "req-uuid",
             "resource_uuid": "instance1",
-            "extra_data": "foo"
+            "extra_data": "foo",
+            "system_scope": "all"
         }
         ctx = context.RequestContext.from_dict(dct)
         self.assertEqual(dct['auth_token'], ctx.auth_token)
@@ -163,6 +164,7 @@ class ContextTest(test_base.BaseTestCase):
         self.assertEqual(dct['domain_name'], ctx.domain_name)
         self.assertEqual(dct['user_domain_name'], ctx.user_domain_name)
         self.assertEqual(dct['project_domain_name'], ctx.project_domain_name)
+        self.assertEqual(dct['system_scope'], ctx.system_scope)
 
     def test_from_dict_unknown_keys(self):
         dct = {
