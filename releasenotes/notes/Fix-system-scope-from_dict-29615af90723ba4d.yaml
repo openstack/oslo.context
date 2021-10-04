@@ -1,0 +1,4 @@
+---
+fixes:
+  - |
+    Fixes context from_dict() to properly handle system_scope.
