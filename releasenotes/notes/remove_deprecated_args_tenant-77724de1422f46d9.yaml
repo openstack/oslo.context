@@ -1,0 +1,5 @@
+---
+upgrade:
+  - |
+    The ``tenant`` argument of ``RequestContext`` that was deprecated for
+    long time is now removed.

@@ -129,7 +129,7 @@ class ContextTest(test_base.BaseTestCase):
             "auth_token": "token1",
             "user": "user1",
             "user_name": "user1_name",
-            "tenant": "tenant1",
+            "project_id": "tenant1",
             "project_name": "tenant1_name",
             "domain": "domain1",
             "domain_name": "domain1_name",
@@ -149,7 +149,7 @@ class ContextTest(test_base.BaseTestCase):
         ctx = context.RequestContext.from_dict(dct)
         self.assertEqual(dct['auth_token'], ctx.auth_token)
         self.assertEqual(dct['user'], ctx.user_id)
-        self.assertEqual(dct['tenant'], ctx.project_id)
+        self.assertEqual(dct['project_id'], ctx.project_id)
         self.assertEqual(dct['domain'], ctx.domain_id)
         self.assertEqual(dct['user_domain'], ctx.user_domain_id)
         self.assertEqual(dct['project_domain'], ctx.project_domain_id)
@@ -198,7 +198,7 @@ class ContextTest(test_base.BaseTestCase):
         self.assertEqual("token1", ctx.auth_token)
         self.assertEqual("user2", ctx.user)
         self.assertEqual("project1", ctx.project_name)
-        self.assertIsNone(ctx.tenant)
+        self.assertIsNone(ctx.project_id)
         self.assertFalse(ctx.is_admin)
         self.assertTrue(ctx.read_only)
 
@@ -322,7 +322,7 @@ class ContextTest(test_base.BaseTestCase):
 
         environ = {'HTTP_X_TENANT': value}
         ctx = context.RequestContext.from_environ(environ=environ)
-        self.assertEqual(value, ctx.tenant)
+        self.assertEqual(value, ctx.project_id)
 
         environ = {'HTTP_X_ROLE': value}
         ctx = context.RequestContext.from_environ(environ=environ)
@@ -354,7 +354,7 @@ class ContextTest(test_base.BaseTestCase):
         self.assertEqual(new, ctx.project_id)
 
         ctx = context.RequestContext.from_environ(environ=environ,
-                                                  tenant=override)
+                                                  project_id=override)
         self.assertEqual(override, ctx.project_id)
 
         environ = {'HTTP_X_TENANT_NAME': old,
@@ -424,7 +424,7 @@ class ContextTest(test_base.BaseTestCase):
         ctx = context.RequestContext(auth_token=auth_token,
                                      user=user_id,
                                      user_name=user_name,
-                                     tenant=project_id,
+                                     project_id=project_id,
                                      project_name=project_name,
                                      domain=domain_id,
                                      domain_name=domain_name,
@@ -458,7 +458,7 @@ class ContextTest(test_base.BaseTestCase):
         d = ctx.to_dict()
         self.assertIn('auth_token', d)
         self.assertIn('user', d)
-        self.assertIn('tenant', d)
+        self.assertIn('project_id', d)
         self.assertIn('domain', d)
         self.assertIn('user_domain', d)
         self.assertIn('project_domain', d)
@@ -476,7 +476,7 @@ class ContextTest(test_base.BaseTestCase):
         self.assertNotIn('project_domain_name', d)
 
         self.assertEqual(auth_token, d['auth_token'])
-        self.assertEqual(project_id, d['tenant'])
+        self.assertEqual(project_id, d['project_id'])
         self.assertEqual(domain_id, d['domain'])
         self.assertEqual(user_domain_id, d['user_domain'])
         self.assertEqual(project_domain_id, d['project_domain'])
@@ -494,7 +494,7 @@ class ContextTest(test_base.BaseTestCase):
         self.assertIn('auth_token', d)
         self.assertEqual(d['auth_token'], '***')
         self.assertIn('user', d)
-        self.assertIn('tenant', d)
+        self.assertIn('project_id', d)
         self.assertIn('domain', d)
         self.assertIn('user_domain', d)
         self.assertIn('project_domain', d)
@@ -546,7 +546,7 @@ class ContextTest(test_base.BaseTestCase):
     def test_policy_dict(self):
         user = uuid.uuid4().hex
         user_domain = uuid.uuid4().hex
-        tenant = uuid.uuid4().hex
+        project_id = uuid.uuid4().hex
         project_domain = uuid.uuid4().hex
         roles = [uuid.uuid4().hex, uuid.uuid4().hex, uuid.uuid4().hex]
         service_user_id = uuid.uuid4().hex
@@ -556,7 +556,7 @@ class ContextTest(test_base.BaseTestCase):
         # default is_admin_project is True
         ctx = context.RequestContext(user=user,
                                      user_domain=user_domain,
-                                     tenant=tenant,
+                                     project_id=project_id,
                                      project_domain=project_domain,
                                      roles=roles,
                                      service_user_id=service_user_id,
@@ -567,7 +567,7 @@ class ContextTest(test_base.BaseTestCase):
                           'user_domain_id': user_domain,
                           'system_scope': None,
                           'domain_id': None,
-                          'project_id': tenant,
+                          'project_id': project_id,
                           'project_domain_id': project_domain,
                           'roles': roles,
                           'is_admin_project': True,
@@ -632,7 +632,7 @@ class ContextTest(test_base.BaseTestCase):
 
         ctx = context.RequestContext(user=user,
                                      user_domain=user_domain,
-                                     tenant=tenant,
+                                     project_id=project_id,
                                      project_domain=project_domain,
                                      roles=roles,
                                      is_admin_project=False,
@@ -644,7 +644,7 @@ class ContextTest(test_base.BaseTestCase):
                           'user_domain_id': user_domain,
                           'system_scope': None,
                           'domain_id': None,
-                          'project_id': tenant,
+                          'project_id': project_id,
                           'project_domain_id': project_domain,
                           'roles': roles,
                           'is_admin_project': False,
@@ -658,13 +658,13 @@ class ContextTest(test_base.BaseTestCase):
     def test_policy_deprecations(self):
         user = uuid.uuid4().hex
         user_domain = uuid.uuid4().hex
-        tenant = uuid.uuid4().hex
+        project_id = uuid.uuid4().hex
         project_domain = uuid.uuid4().hex
         roles = [uuid.uuid4().hex, uuid.uuid4().hex, uuid.uuid4().hex]
 
         ctx = context.RequestContext(user=user,
                                      user_domain=user_domain,
-                                     tenant=tenant,
+                                     project_id=project_id,
                                      project_domain=project_domain,
                                      roles=roles)
 
@@ -707,11 +707,9 @@ class ContextTest(test_base.BaseTestCase):
         self.assertEqual(0, len(self.warnings))
         self.assertEqual(user_id, ctx.user)
         self.assertEqual(1, len(self.warnings))
-        self.assertEqual(project_id, ctx.tenant)
-        self.assertEqual(2, len(self.warnings))
         self.assertEqual(domain_id, ctx.domain)
-        self.assertEqual(3, len(self.warnings))
+        self.assertEqual(2, len(self.warnings))
         self.assertEqual(user_domain_id, ctx.user_domain)
-        self.assertEqual(4, len(self.warnings))
+        self.assertEqual(3, len(self.warnings))
         self.assertEqual(project_domain_id, ctx.project_domain)
-        self.assertEqual(5, len(self.warnings))
+        self.assertEqual(4, len(self.warnings))

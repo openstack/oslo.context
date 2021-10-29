@@ -181,13 +181,12 @@ class RequestContext(object):
     accesses the system, as well as additional request information.
     """
 
-    user_idt_format = u'{user} {tenant} {domain} {user_domain} {p_domain}'
+    user_idt_format = u'{user} {project_id} {domain} {user_domain} {p_domain}'
     # Can be overridden in subclasses to specify extra keys that should be
     # read when constructing a context using from_dict.
     FROM_DICT_EXTRA_KEYS = []
 
     @_renamed_kwarg('user', 'user_id')
-    @_renamed_kwarg('tenant', 'project_id')
     @_renamed_kwarg('domain', 'domain_id')
     @_renamed_kwarg('user_domain', 'user_domain_id')
     @_renamed_kwarg('project_domain', 'project_domain_id')
@@ -277,9 +276,8 @@ class RequestContext(object):
             self.update_store()
 
     # NOTE(jamielennox): To prevent circular lookups on subclasses that might
-    # point user to user_id we make user/user_id tenant/project_id etc point
+    # point user to user_id we make user/user_id  etc point
     # to the same private variable rather than each other.
-    tenant = _moved_property('project_id', 'tenant', target='_project_id')
     user = _moved_property('user_id', 'user', target='_user_id')
     domain = _moved_property('domain_id', 'domain', target='_domain_id')
     user_domain = _moved_property('user_domain_id',
@@ -334,13 +332,13 @@ class RequestContext(object):
         """Return a dictionary of context attributes."""
         user_idt = self.user_idt_format.format(
             user=self.user_id or '-',
-            tenant=self.project_id or '-',
+            project_id=self.project_id or '-',
             domain=self.domain_id or '-',
             user_domain=self.user_domain_id or '-',
             p_domain=self.project_domain_id or '-')
 
         return {'user': self.user_id,
-                'tenant': self.project_id,
+                'project_id': self.project_id,
                 'system_scope': self.system_scope,
                 'project': self.project_id,
                 'domain': self.domain_id,
@@ -392,7 +390,6 @@ class RequestContext(object):
 
     @classmethod
     @_renamed_kwarg('user', 'user_id')
-    @_renamed_kwarg('tenant', 'project_id')
     @_renamed_kwarg('domain', 'domain_id')
     @_renamed_kwarg('user_domain', 'user_domain_id')
     @_renamed_kwarg('project_domain', 'project_domain_id')
@@ -400,7 +397,7 @@ class RequestContext(object):
         """Construct a context object from a provided dictionary."""
         kwargs.setdefault('auth_token', values.get('auth_token'))
         kwargs.setdefault('user_id', values.get('user'))
-        kwargs.setdefault('project_id', values.get('tenant'))
+        kwargs.setdefault('project_id', values.get('project_id'))
         kwargs.setdefault('domain_id', values.get('domain'))
         kwargs.setdefault('user_domain_id', values.get('user_domain'))
         kwargs.setdefault('project_domain_id', values.get('project_domain'))
@@ -426,7 +423,6 @@ class RequestContext(object):
 
     @classmethod
     @_renamed_kwarg('user', 'user_id')
-    @_renamed_kwarg('tenant', 'project_id')
     @_renamed_kwarg('domain', 'domain_id')
     @_renamed_kwarg('user_domain', 'user_domain_id')
     @_renamed_kwarg('project_domain', 'project_domain_id')
