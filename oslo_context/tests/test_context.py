@@ -518,10 +518,24 @@ class ContextTest(test_base.BaseTestCase):
         self.assertEqual(user_domain_name, d['user_domain_name'])
         self.assertEqual(project_domain_name, d['project_domain_name'])
 
-    def test_auth_token_info_removed(self):
+    def test_auth_token_info_removed_logging_values(self):
         ctx = TestContext(auth_token_info={'auth_token': 'topsecret'})
         d = ctx.get_logging_values()
         self.assertNotIn('auth_token_info', d)
+
+    def test_auth_token_info_removed_redacted_context(self):
+        userid = 'foo'
+        ctx = TestContext(
+            auth_token_info={'auth_token': 'topsecret'},
+            service_token="1234567",
+            auth_token="8901234",
+            user_id=userid)
+        safe_ctxt = ctx.redacted_copy()
+        self.assertIsNone(safe_ctxt.auth_token_info)
+        self.assertIsNone(safe_ctxt.service_token)
+        self.assertIsNone(safe_ctxt.auth_token)
+        self.assertEqual(userid, safe_ctxt.user_id)
+        self.assertNotEqual(ctx, safe_ctxt)
 
     def test_dict_empty_user_identity(self):
         ctx = context.RequestContext()
