@@ -27,6 +27,11 @@ repos:
       - id: debug-statements
       - id: check-yaml
         files: .*\.(yaml|yml)$
+  - repo: https://github.com/PyCQA/bandit
+    rev: 1.7.5
+    hooks:
+    - id: bandit
+      args: ['-x', 'tests']
   - repo: local
     hooks:
       - id: flake8
@@ -37,3 +42,13 @@ repos:
         entry: flake8
         files: '^.*\.py$'
         exclude: '^(doc|releasenotes|tools)/.*$'
+  - repo: https://github.com/pre-commit/mirrors-mypy
+    rev: v1.4.1
+    hooks:
+      - id: mypy
+        exclude: |
+          (?x)(
+            oslo_context/tests/.*
+            | doc/.*
+            | releasenotes/.*
+          )
