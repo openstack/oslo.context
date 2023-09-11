@@ -387,6 +387,42 @@ class RequestContext(object):
         """
         return self.global_request_id or self.request_id
 
+    def redacted_copy(self) -> 'RequestContext':
+        """Return a copy of the context with sensitive fields redacted.
+
+        This is useful for creating a context that can be safely logged.
+
+        :returns: A copy of the context with sensitive fields redacted.
+        """
+        return self.__class__(
+            user_id=self.user_id,
+            project_id=self.project_id,
+            domain_id=self.domain_id,
+            user_domain_id=self.user_domain_id,
+            project_domain_id=self.project_domain_id,
+            request_id=self.request_id,
+            roles=self.roles,
+            user_name=self.user_name,
+            project_name=self.project_name,
+            domain_name=self.domain_name,
+            user_domain_name=self.user_domain_name,
+            project_domain_name=self.project_domain_name,
+            service_user_id=self.service_user_id,
+            service_user_domain_id=self.service_user_domain_id,
+            service_user_domain_name=self.service_user_domain_name,
+            service_project_id=self.service_project_id,
+            service_project_name=self.service_project_name,
+            service_project_domain_id=self.service_project_domain_id,
+            service_project_domain_name=self.service_project_domain_name,
+            service_roles=self.service_roles,
+            global_request_id=self.global_request_id,
+            system_scope=self.system_scope,
+            user=self.user,
+            domain=self.domain,
+            user_domain=self.user_domain,
+            project_domain=self.project_domain
+        )
+
     @classmethod
     @_renamed_kwarg('user', 'user_id')
     @_renamed_kwarg('domain', 'domain_id')

@@ -1,0 +1,7 @@
+features:
+  - |
+    Added ``redacted_copy`` method to ``RequestContext``. This returns a copy
+    of the context with secrets redacted. This will allow downstreams that
+    inherit and enhance the ``RequestContext`` can include the additional data
+    in the redacted copy if they wish by overriding the ``redacted_copy``
+    method.
