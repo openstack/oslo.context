@@ -27,16 +27,11 @@ or logging context.
 """
 
 import collections.abc
-import functools
 import itertools
 import threading
 import typing as ty
 import uuid
 import warnings
-
-import debtcollector
-from debtcollector import renames
-
 
 _request_store = threading.local()
 
@@ -130,46 +125,6 @@ class _DeprecatedPolicyValues(collections.abc.MutableMapping):
         return d
 
 
-# TODO(stephenfin): Remove this in the 4.0 release
-def _moved_msg(new_name: str, old_name: ty.Optional[str]) -> None:
-    if old_name:
-        deprecated_msg = "Property '%(old_name)s' has moved to '%(new_name)s'"
-        deprecated_msg = deprecated_msg % {'old_name': old_name,
-                                           'new_name': new_name}
-
-        debtcollector.deprecate(deprecated_msg,
-                                version='2.6',
-                                removal_version='3.0',
-                                stacklevel=5)
-
-
-def _moved_property(
-    new_name: str,
-    old_name: ty.Optional[str] = None,
-    target: ty.Optional[str] = None,
-) -> ty.Any:
-
-    def getter(self: ty.Any) -> ty.Any:
-        _moved_msg(new_name, old_name)
-        return getattr(self, target or new_name)
-
-    def setter(self: ty.Any, value: str) -> None:
-        _moved_msg(new_name, old_name)
-        setattr(self, target or new_name, value)
-
-    def deleter(self: ty.Any) -> None:
-        _moved_msg(new_name, old_name)
-        delattr(self, target or new_name)
-
-    return property(getter, setter, deleter)
-
-
-_renamed_kwarg = functools.partial(renames.renamed_kwarg,
-                                   version='2.18',
-                                   removal_version='3.0',
-                                   replace=True)
-
-
 class RequestContext:
 
     """Helper class to represent useful information about a request context.
@@ -183,10 +138,6 @@ class RequestContext:
     # read when constructing a context using from_dict.
     FROM_DICT_EXTRA_KEYS: ty.List[str] = []
 
-    @_renamed_kwarg('user', 'user_id')
-    @_renamed_kwarg('domain', 'domain_id')
-    @_renamed_kwarg('user_domain', 'user_domain_id')
-    @_renamed_kwarg('project_domain', 'project_domain_id')
     def __init__(
         self,
         auth_token: ty.Optional[str] = None,
@@ -236,11 +187,11 @@ class RequestContext:
         :type system_scope: string
         """
         # setting to private variables to avoid triggering subclass properties
-        self._user_id = user_id
-        self._project_id = project_id
-        self._domain_id = domain_id
-        self._user_domain_id = user_domain_id
-        self._project_domain_id = project_domain_id
+        self.user_id = user_id
+        self.project_id = project_id
+        self.domain_id = domain_id
+        self.user_domain_id = user_domain_id
+        self.project_domain_id = project_domain_id
 
         self.auth_token = auth_token
         self.user_name = user_name
@@ -269,26 +220,12 @@ class RequestContext:
 
         if not request_id:
             request_id = generate_request_id()
+
         self.request_id = request_id
         self.global_request_id = global_request_id
+
         if overwrite or not get_current():
             self.update_store()
-
-    # NOTE(jamielennox): To prevent circular lookups on subclasses that might
-    # point user to user_id we make user/user_id  etc point
-    # to the same private variable rather than each other.
-    user = _moved_property('user_id', 'user', target='_user_id')
-    domain = _moved_property('domain_id', 'domain', target='_domain_id')
-    user_domain = _moved_property(
-        'user_domain_id', 'user_domain', target='_user_domain_id')
-    project_domain = _moved_property(
-        'project_domain_id', 'project_domain', target='_project_domain_id')
-
-    user_id = _moved_property('_user_id')
-    project_id = _moved_property('_project_id')
-    domain_id = _moved_property('_domain_id')
-    user_domain_id = _moved_property('_user_domain_id')
-    project_domain_id = _moved_property('_project_domain_id')
 
     def update_store(self) -> None:
         """Store the context in the current thread."""
@@ -422,10 +359,6 @@ class RequestContext:
         )
 
     @classmethod
-    @_renamed_kwarg('user', 'user_id')
-    @_renamed_kwarg('domain', 'domain_id')
-    @_renamed_kwarg('user_domain', 'user_domain_id')
-    @_renamed_kwarg('project_domain', 'project_domain_id')
     def from_dict(
         cls, values: ty.Dict[str, ty.Any], **kwargs: ty.Any,
     ) -> 'RequestContext':
@@ -457,10 +390,6 @@ class RequestContext:
         return cls(**kwargs)
 
     @classmethod
-    @_renamed_kwarg('user', 'user_id')
-    @_renamed_kwarg('domain', 'domain_id')
-    @_renamed_kwarg('user_domain', 'user_domain_id')
-    @_renamed_kwarg('project_domain', 'project_domain_id')
     def from_environ(
         cls, environ: ty.Dict[str, ty.Any], **kwargs: ty.Any,
     ) -> 'RequestContext':

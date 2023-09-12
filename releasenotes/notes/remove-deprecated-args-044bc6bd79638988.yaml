@@ -1,0 +1,13 @@
+---
+upgrade:
+  - |
+    The following arguments, first deprecated in 2.19.1 (Queens), have now been
+    removed.
+
+    - `user` (replaced by `user_id`)
+    - `domain` (replaced by `domain_id`)
+    - `user_domain` (replaced by `user_domain_id`)
+    - `project_domain` (replaced by `project_domain_id`)
+
+    If you are still using the legacy aliases, simply replace e.g. `user` with
+    `user_id` in your calls and `RequestContext` subclasses.
