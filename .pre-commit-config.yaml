@@ -34,12 +34,12 @@ repos:
         files: '^.*\.py$'
         exclude: '^(doc|releasenotes|tools)/.*$'
   - repo: https://github.com/pre-commit/mirrors-mypy
-    rev: v1.12.1
+    rev: v1.15.0
     hooks:
       - id: mypy
         exclude: |
           (?x)(
-            oslo_context/tests/.*
+            oslo_context/fixture.py
             | doc/.*
             | releasenotes/.*
           )

@@ -33,6 +33,13 @@ import typing as ty
 import uuid
 import warnings
 
+import typing_extensions as ty_ext
+
+if ty.TYPE_CHECKING:
+    _MutableMapping = collections.abc.MutableMapping[str, ty.Any]
+else:
+    _MutableMapping = collections.abc.MutableMapping
+
 _request_store = threading.local()
 
 # These arguments will be passed to a new context from the first available
@@ -69,7 +76,7 @@ def generate_request_id() -> str:
     return 'req-%s' % uuid.uuid4()
 
 
-class _DeprecatedPolicyValues(collections.abc.MutableMapping):
+class _DeprecatedPolicyValues(_MutableMapping):
     """A Dictionary that manages current and deprecated policy values.
 
     Anything added to this dictionary after initial creation is considered a
@@ -324,7 +331,7 @@ class RequestContext:
         """
         return self.global_request_id or self.request_id
 
-    def redacted_copy(self, **kwargs: ty.Any) -> 'RequestContext':
+    def redacted_copy(self, **kwargs: ty.Any) -> ty_ext.Self:
         """Return a copy of the context with sensitive fields redacted.
 
         This is useful for creating a context that can be safely logged.
@@ -361,7 +368,7 @@ class RequestContext:
     @classmethod
     def from_dict(
         cls, values: ty.Dict[str, ty.Any], **kwargs: ty.Any,
-    ) -> 'RequestContext':
+    ) -> ty_ext.Self:
         """Construct a context object from a provided dictionary."""
         kwargs.setdefault('auth_token', values.get('auth_token'))
         kwargs.setdefault('user_id', values.get('user'))
@@ -392,7 +399,7 @@ class RequestContext:
     @classmethod
     def from_environ(
         cls, environ: ty.Dict[str, ty.Any], **kwargs: ty.Any,
-    ) -> 'RequestContext':
+    ) -> ty_ext.Self:
         """Load a context object from a request environment.
 
         If keyword arguments are provided then they override the values in the
@@ -446,7 +453,7 @@ def get_admin_context(show_deleted: bool = False) -> RequestContext:
 
 
 def get_context_from_function_and_args(
-    function: ty.Callable,
+    function: ty.Callable[..., ty.Any],
     args: ty.List[ty.Any],
     kwargs: ty.Dict[str, ty.Any],
 ) -> ty.Optional[RequestContext]:
@@ -462,7 +469,7 @@ def get_context_from_function_and_args(
     return None
 
 
-def is_user_context(context: RequestContext) -> bool:
+def is_user_context(context: ty.Any) -> bool:
     """Indicates if the request context is a normal user."""
     if not context or not isinstance(context, RequestContext):
         return False

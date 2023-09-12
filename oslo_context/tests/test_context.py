@@ -374,34 +374,35 @@ class ContextTest(test_base.BaseTestCase):
         self.assertEqual(['jkl', 'mno', 'pqr'], ctx.service_roles)
 
     def test_environ_admin_project(self):
-        environ = {}
-        ctx = context.RequestContext.from_environ(environ=environ)
+        ctx = context.RequestContext.from_environ(environ={})
         self.assertIs(True, ctx.is_admin_project)
         self.assertIs(True, ctx.to_policy_values()['is_admin_project'])
 
-        environ = {'HTTP_X_IS_ADMIN_PROJECT': 'True'}
-        ctx = context.RequestContext.from_environ(environ=environ)
+        ctx = context.RequestContext.from_environ(
+            environ={'HTTP_X_IS_ADMIN_PROJECT': 'True'}
+        )
         self.assertIs(True, ctx.is_admin_project)
         self.assertIs(True, ctx.to_policy_values()['is_admin_project'])
 
-        environ = {'HTTP_X_IS_ADMIN_PROJECT': 'False'}
-        ctx = context.RequestContext.from_environ(environ=environ)
+        ctx = context.RequestContext.from_environ(
+            environ={'HTTP_X_IS_ADMIN_PROJECT': 'False'}
+        )
         self.assertIs(False, ctx.is_admin_project)
         self.assertIs(False, ctx.to_policy_values()['is_admin_project'])
 
     def test_from_function_and_args(self):
         ctx = context.RequestContext(user_id="user1")
-        arg = []
-        kw = dict(c=ctx, s="s")
-        fn = context.get_context_from_function_and_args
-        ctx1 = context.get_context_from_function_and_args(fn, arg, kw)
+        ctx1 = context.get_context_from_function_and_args(
+            context.get_context_from_function_and_args,
+            [],
+            {'c': ctx, 's': 's'},
+        )
         self.assertIs(ctx1, ctx)
 
     def test_not_in_from_function_and_args(self):
-        arg = []
-        kw = dict()
-        fn = context.get_context_from_function_and_args
-        ctx1 = context.get_context_from_function_and_args(fn, arg, kw)
+        ctx1 = context.get_context_from_function_and_args(
+            context.get_context_from_function_and_args, [], {}
+        )
         self.assertIsNone(ctx1)
 
     def test_values(self):
