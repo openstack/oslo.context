@@ -387,7 +387,7 @@ class RequestContext(object):
         """
         return self.global_request_id or self.request_id
 
-    def redacted_copy(self) -> 'RequestContext':
+    def redacted_copy(self, **kwargs: ty.Any) -> 'RequestContext':
         """Return a copy of the context with sensitive fields redacted.
 
         This is useful for creating a context that can be safely logged.
@@ -420,7 +420,9 @@ class RequestContext(object):
             user=self.user,
             domain=self.domain,
             user_domain=self.user_domain,
-            project_domain=self.project_domain
+            project_domain=self.project_domain,
+            is_admin=self.is_admin,
+            **kwargs
         )
 
     @classmethod
