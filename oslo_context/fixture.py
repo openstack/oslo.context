@@ -25,7 +25,7 @@ class ClearRequestContext(fixtures.Fixture):
     """
 
     def setUp(self) -> None:
-        super(ClearRequestContext, self).setUp()
+        super().setUp()
         # we need to clear both when we start, and when we finish,
         # because there might be other tests running that don't handle
         # this correctly.

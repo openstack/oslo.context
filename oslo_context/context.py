@@ -170,7 +170,7 @@ _renamed_kwarg = functools.partial(renames.renamed_kwarg,
                                    replace=True)
 
 
-class RequestContext(object):
+class RequestContext:
 
     """Helper class to represent useful information about a request context.
 

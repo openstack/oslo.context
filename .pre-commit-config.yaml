@@ -1,6 +1,6 @@
 repos:
   - repo: https://github.com/pre-commit/pre-commit-hooks
-    rev: v4.5.0
+    rev: v5.0.0
     hooks:
       - id: trailing-whitespace
       # Replaces or checks mixed line ending
@@ -19,7 +19,7 @@ repos:
       - id: check-yaml
         files: .*\.(yaml|yml)$
   - repo: https://github.com/PyCQA/bandit
-    rev: 1.7.5
+    rev: 1.7.10
     hooks:
     - id: bandit
       args: ['-x', 'tests']
@@ -34,7 +34,7 @@ repos:
         files: '^.*\.py$'
         exclude: '^(doc|releasenotes|tools)/.*$'
   - repo: https://github.com/pre-commit/mirrors-mypy
-    rev: v1.4.1
+    rev: v1.12.1
     hooks:
       - id: mypy
         exclude: |
@@ -43,3 +43,8 @@ repos:
             | doc/.*
             | releasenotes/.*
           )
+  - repo: https://github.com/asottile/pyupgrade
+    rev: v3.18.0
+    hooks:
+      - id: pyupgrade
+        args: [--py3-only]
