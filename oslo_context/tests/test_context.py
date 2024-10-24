@@ -1,4 +1,3 @@
-# -*- encoding: utf-8 -*-
 # Copyright 2011 OpenStack Foundation.
 # All Rights Reserved.
 #
@@ -32,12 +31,12 @@ def generate_id(name):
 class WarningsFixture(fixtures.Fixture):
 
     def __init__(self, action="always", category=DeprecationWarning):
-        super(WarningsFixture, self).__init__()
+        super().__init__()
         self.action = action
         self.category = category
 
     def setUp(self):
-        super(WarningsFixture, self).setUp()
+        super().setUp()
         self._w = warnings.catch_warnings(record=True)
         self.log = self._w.__enter__()
         self.addCleanup(self._w.__exit__)
@@ -50,7 +49,7 @@ class WarningsFixture(fixtures.Fixture):
         return self.log[item]
 
 
-class Object(object):
+class Object:
     pass
 
 
@@ -63,11 +62,11 @@ class TestContext(context.RequestContext):
     FROM_DICT_EXTRA_KEYS = ['auth_token_info']
 
     def __init__(self, auth_token_info=None, **kwargs):
-        super(TestContext, self).__init__(**kwargs)
+        super().__init__(**kwargs)
         self.auth_token_info = auth_token_info
 
     def to_dict(self):
-        d = super(TestContext, self).to_dict()
+        d = super().to_dict()
         d['auth_token_info'] = self.auth_token_info
         return d
 
@@ -75,7 +74,7 @@ class TestContext(context.RequestContext):
 class ContextTest(test_base.BaseTestCase):
 
     def setUp(self):
-        super(ContextTest, self).setUp()
+        super().setUp()
         self.warnings = self.useFixture(WarningsFixture())
         self.useFixture(fixture.ClearRequestContext())
 
@@ -404,7 +403,7 @@ class ContextTest(test_base.BaseTestCase):
     def test_values(self):
         auth_token = "token1"
         # test unicode support
-        user_name = u"John Gāo"
+        user_name = "John Gāo"
         user_id = generate_id(user_name)
         project_name = 'tenant1'
         project_id = generate_id(project_name)
@@ -485,8 +484,8 @@ class ContextTest(test_base.BaseTestCase):
         self.assertEqual(show_deleted, d['show_deleted'])
         self.assertEqual(request_id, d['request_id'])
         self.assertEqual(resource_uuid, d['resource_uuid'])
-        user_identity = "%s %s %s %s %s" % (user_id, project_id, domain_id,
-                                            user_domain_id, project_domain_id)
+        user_identity = "{} {} {} {} {}".format(
+            user_id, project_id, domain_id, user_domain_id, project_domain_id)
         self.assertEqual(user_identity, d['user_identity'])
         self.assertEqual([], d['roles'])
 
