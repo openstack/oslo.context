@@ -417,10 +417,6 @@ class RequestContext:
             service_roles=self.service_roles,
             global_request_id=self.global_request_id,
             system_scope=self.system_scope,
-            user=self.user,
-            domain=self.domain,
-            user_domain=self.user_domain,
-            project_domain=self.project_domain,
             is_admin=self.is_admin,
             **kwargs
         )
