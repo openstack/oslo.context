@@ -17,7 +17,6 @@ from oslo_context import fixture
 
 
 class ClearRequestContextTest(test_base.BaseTestCase):
-
     # def setUp(self):
     #     super(ContextTest, self).setUp()
     #     self.useFixture(fixture.ClearRequestContext())

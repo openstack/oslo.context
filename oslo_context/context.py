@@ -44,7 +44,7 @@ _request_store = threading.local()
 
 # These arguments will be passed to a new context from the first available
 # header to support backwards compatibility.
-_ENVIRON_HEADERS: ty.Dict[str, ty.List[str]] = {
+_ENVIRON_HEADERS: dict[str, list[str]] = {
     'auth_token': ['HTTP_X_AUTH_TOKEN', 'HTTP_X_STORAGE_TOKEN'],
     'user_id': ['HTTP_X_USER_ID', 'HTTP_X_USER'],
     'project_id': ['HTTP_X_PROJECT_ID', 'HTTP_X_TENANT_ID', 'HTTP_X_TENANT'],
@@ -58,7 +58,6 @@ _ENVIRON_HEADERS: ty.Dict[str, ty.List[str]] = {
     'project_domain_name': ['HTTP_X_PROJECT_DOMAIN_NAME'],
     'request_id': ['openstack.request_id'],
     'global_request_id': ['openstack.global_request_id'],
-
     'service_token': ['HTTP_X_SERVICE_TOKEN'],
     'service_user_id': ['HTTP_X_SERVICE_USER_ID'],
     'service_user_name': ['HTTP_X_SERVICE_USER_NAME'],
@@ -73,7 +72,7 @@ _ENVIRON_HEADERS: ty.Dict[str, ty.List[str]] = {
 
 def generate_request_id() -> str:
     """Generate a unique request id."""
-    return 'req-%s' % uuid.uuid4()
+    return f'req-{uuid.uuid4()}'
 
 
 class _DeprecatedPolicyValues(_MutableMapping):
@@ -84,9 +83,9 @@ class _DeprecatedPolicyValues(_MutableMapping):
     these values as oslo.policy will do will trigger a DeprecationWarning.
     """
 
-    def __init__(self, data: ty.Dict[str, ty.Any]):
+    def __init__(self, data: dict[str, ty.Any]):
         self._data = data
-        self._deprecated: ty.Dict[str, ty.Any] = {}
+        self._deprecated: dict[str, ty.Any] = {}
 
     def __getitem__(self, k: str) -> ty.Any:
         try:
@@ -99,10 +98,12 @@ class _DeprecatedPolicyValues(_MutableMapping):
         except KeyError:
             pass
         else:
-            warnings.warn('Policy enforcement is depending on the value of '
-                          '%s. This key is deprecated. Please update your '
-                          'policy file to use the standard policy values.' % k,
-                          DeprecationWarning)
+            warnings.warn(
+                'Policy enforcement is depending on the value of '
+                f'{k}. This key is deprecated. Please update your '
+                'policy file to use the standard policy values.',
+                DeprecationWarning,
+            )
             return val
 
         raise KeyError(k)
@@ -126,14 +127,13 @@ class _DeprecatedPolicyValues(_MutableMapping):
         return self._dict.__repr__()
 
     @property
-    def _dict(self) -> ty.Dict[str, ty.Any]:
+    def _dict(self) -> dict[str, ty.Any]:
         d = self._deprecated.copy()
         d.update(self._data)
         return d
 
 
 class RequestContext:
-
     """Helper class to represent useful information about a request context.
 
     Stores information about the security context under which the user
@@ -143,7 +143,7 @@ class RequestContext:
     user_idt_format = '{user} {project_id} {domain} {user_domain} {p_domain}'
     # Can be overridden in subclasses to specify extra keys that should be
     # read when constructing a context using from_dict.
-    FROM_DICT_EXTRA_KEYS: ty.List[str] = []
+    FROM_DICT_EXTRA_KEYS: list[str] = []
 
     def __init__(
         self,
@@ -159,7 +159,7 @@ class RequestContext:
         request_id: ty.Optional[str] = None,
         resource_uuid: ty.Optional[str] = None,
         overwrite: bool = True,
-        roles: ty.Optional[ty.List[str]] = None,
+        roles: ty.Optional[list[str]] = None,
         user_name: ty.Optional[str] = None,
         project_name: ty.Optional[str] = None,
         domain_name: ty.Optional[str] = None,
@@ -175,7 +175,7 @@ class RequestContext:
         service_project_name: ty.Optional[str] = None,
         service_project_domain_id: ty.Optional[str] = None,
         service_project_domain_name: ty.Optional[str] = None,
-        service_roles: ty.Optional[ty.List[str]] = None,
+        service_roles: ty.Optional[list[str]] = None,
         global_request_id: ty.Optional[str] = None,
         system_scope: ty.Optional[str] = None,
     ):
@@ -254,23 +254,25 @@ class RequestContext:
         # deprecated policy values that trigger a warning when used in favour
         # of our standard ones. This object acts like a dict but only values
         # from oslo.policy don't show a warning.
-        return _DeprecatedPolicyValues({
-            'user_id': self.user_id,
-            'user_domain_id': self.user_domain_id,
-            'system_scope': self.system_scope,
-            'domain_id': self.domain_id,
-            'project_id': self.project_id,
-            'project_domain_id': self.project_domain_id,
-            'roles': self.roles,
-            'is_admin_project': self.is_admin_project,
-            'service_user_id': self.service_user_id,
-            'service_user_domain_id': self.service_user_domain_id,
-            'service_project_id': self.service_project_id,
-            'service_project_domain_id': self.service_project_domain_id,
-            'service_roles': self.service_roles,
-        })
+        return _DeprecatedPolicyValues(
+            {
+                'user_id': self.user_id,
+                'user_domain_id': self.user_domain_id,
+                'system_scope': self.system_scope,
+                'domain_id': self.domain_id,
+                'project_id': self.project_id,
+                'project_domain_id': self.project_domain_id,
+                'roles': self.roles,
+                'is_admin_project': self.is_admin_project,
+                'service_user_id': self.service_user_id,
+                'service_user_domain_id': self.service_user_domain_id,
+                'service_project_id': self.service_project_id,
+                'service_project_domain_id': self.service_project_domain_id,
+                'service_roles': self.service_roles,
+            }
+        )
 
-    def to_dict(self) -> ty.Dict[str, ty.Any]:
+    def to_dict(self) -> dict[str, ty.Any]:
         """Return a dictionary of context attributes."""
         user_idt = self.user_idt_format.format(
             user=self.user_id or '-',
@@ -280,36 +282,40 @@ class RequestContext:
             p_domain=self.project_domain_id or '-',
         )
 
-        return {'user': self.user_id,
-                'project_id': self.project_id,
-                'system_scope': self.system_scope,
-                'project': self.project_id,
-                'domain': self.domain_id,
-                'user_domain': self.user_domain_id,
-                'project_domain': self.project_domain_id,
-                'is_admin': self.is_admin,
-                'read_only': self.read_only,
-                'show_deleted': self.show_deleted,
-                'auth_token': self.auth_token,
-                'request_id': self.request_id,
-                'global_request_id': self.global_request_id,
-                'resource_uuid': self.resource_uuid,
-                'roles': self.roles,
-                'user_identity': user_idt,
-                'is_admin_project': self.is_admin_project}
+        return {
+            'user': self.user_id,
+            'project_id': self.project_id,
+            'system_scope': self.system_scope,
+            'project': self.project_id,
+            'domain': self.domain_id,
+            'user_domain': self.user_domain_id,
+            'project_domain': self.project_domain_id,
+            'is_admin': self.is_admin,
+            'read_only': self.read_only,
+            'show_deleted': self.show_deleted,
+            'auth_token': self.auth_token,
+            'request_id': self.request_id,
+            'global_request_id': self.global_request_id,
+            'resource_uuid': self.resource_uuid,
+            'roles': self.roles,
+            'user_identity': user_idt,
+            'is_admin_project': self.is_admin_project,
+        }
 
-    def get_logging_values(self) -> ty.Dict[str, ty.Any]:
+    def get_logging_values(self) -> dict[str, ty.Any]:
         """Return a dictionary of logging specific context attributes."""
-        values = {'user_name': self.user_name,
-                  'project_name': self.project_name,
-                  'domain_name': self.domain_name,
-                  'user_domain_name': self.user_domain_name,
-                  'project_domain_name': self.project_domain_name}
+        values = {
+            'user_name': self.user_name,
+            'project_name': self.project_name,
+            'domain_name': self.domain_name,
+            'user_domain_name': self.user_domain_name,
+            'project_domain_name': self.project_domain_name,
+        }
         values.update(self.to_dict())
         if self.auth_token:
             # NOTE(jaosorior): Gotta obfuscate the token since this dict is
             # meant for logging and we shouldn't leak it.
-            values['auth_token'] = '***'  # nosec
+            values['auth_token'] = '***'  # noqa: S105
         else:
             values['auth_token'] = None
         # NOTE(bnemec: auth_token_info isn't defined in oslo.context, but it's
@@ -362,12 +368,12 @@ class RequestContext:
             global_request_id=self.global_request_id,
             system_scope=self.system_scope,
             is_admin=self.is_admin,
-            **kwargs
+            **kwargs,
         )
 
     @classmethod
     def from_dict(
-        cls, values: ty.Dict[str, ty.Any], **kwargs: ty.Any,
+        cls, values: dict[str, ty.Any], **kwargs: ty.Any
     ) -> ty_ext.Self:
         """Construct a context object from a provided dictionary."""
         kwargs.setdefault('auth_token', values.get('auth_token'))
@@ -387,10 +393,12 @@ class RequestContext:
         kwargs.setdefault('project_name', values.get('project_name'))
         kwargs.setdefault('domain_name', values.get('domain_name'))
         kwargs.setdefault('user_domain_name', values.get('user_domain_name'))
-        kwargs.setdefault('project_domain_name',
-                          values.get('project_domain_name'))
-        kwargs.setdefault('is_admin_project',
-                          values.get('is_admin_project', True))
+        kwargs.setdefault(
+            'project_domain_name', values.get('project_domain_name')
+        )
+        kwargs.setdefault(
+            'is_admin_project', values.get('is_admin_project', True)
+        )
         kwargs.setdefault('system_scope', values.get('system_scope'))
         for key in cls.FROM_DICT_EXTRA_KEYS:
             kwargs.setdefault(key, values.get(key))
@@ -398,7 +406,7 @@ class RequestContext:
 
     @classmethod
     def from_environ(
-        cls, environ: ty.Dict[str, ty.Any], **kwargs: ty.Any,
+        cls, environ: dict[str, ty.Any], **kwargs: ty.Any
     ) -> ty_ext.Self:
         """Load a context object from a request environment.
 
@@ -444,18 +452,20 @@ class RequestContext:
 
 def get_admin_context(show_deleted: bool = False) -> RequestContext:
     """Create an administrator context."""
-    context = RequestContext(None,
-                             project_id=None,
-                             is_admin=True,
-                             show_deleted=show_deleted,
-                             overwrite=False)
+    context = RequestContext(
+        None,
+        project_id=None,
+        is_admin=True,
+        show_deleted=show_deleted,
+        overwrite=False,
+    )
     return context
 
 
 def get_context_from_function_and_args(
     function: ty.Callable[..., ty.Any],
-    args: ty.List[ty.Any],
-    kwargs: ty.Dict[str, ty.Any],
+    args: list[ty.Any],
+    kwargs: dict[str, ty.Any],
 ) -> ty.Optional[RequestContext]:
     """Find an arg of type RequestContext and return it.
 

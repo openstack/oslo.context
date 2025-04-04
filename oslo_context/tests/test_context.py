@@ -13,11 +13,11 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 
-import fixtures
 import hashlib
 import uuid
 import warnings
 
+import fixtures
 from oslotest import base as test_base
 
 from oslo_context import context
@@ -29,7 +29,6 @@ def generate_id(name):
 
 
 class WarningsFixture(fixtures.Fixture):
-
     def __init__(self, action="always", category=DeprecationWarning):
         super().__init__()
         self.action = action
@@ -59,6 +58,7 @@ class TestContext(context.RequestContext):
     This is representative of how at least some of our consumers use the
     RequestContext class in their projects.
     """
+
     FROM_DICT_EXTRA_KEYS = ['auth_token_info']
 
     def __init__(self, auth_token_info=None, **kwargs):
@@ -72,7 +72,6 @@ class TestContext(context.RequestContext):
 
 
 class ContextTest(test_base.BaseTestCase):
-
     def setUp(self):
         super().setUp()
         self.warnings = self.useFixture(WarningsFixture())
@@ -143,7 +142,7 @@ class ContextTest(test_base.BaseTestCase):
             "global_request_id": "req-uuid",
             "resource_uuid": "instance1",
             "extra_data": "foo",
-            "system_scope": "all"
+            "system_scope": "all",
         }
         ctx = context.RequestContext.from_dict(dct)
         self.assertEqual(dct['auth_token'], ctx.auth_token)
@@ -172,7 +171,7 @@ class ContextTest(test_base.BaseTestCase):
             "read_only": True,
             "roles": "role1,role2,role3",  # future review provides this
             "color": "red",
-            "unknown": ""
+            "unknown": "",
         }
         ctx = context.RequestContext.from_dict(dct)
         self.assertEqual("token1", ctx.auth_token)
@@ -189,7 +188,7 @@ class ContextTest(test_base.BaseTestCase):
             "read_only": True,
             "roles": "role1,role2,role3",
             "color": "red",
-            "unknown": ""
+            "unknown": "",
         }
         ctx = context.RequestContext.from_dict(
             dct,
@@ -289,14 +288,17 @@ class ContextTest(test_base.BaseTestCase):
         self.assertEqual(service_user_id, ctx.service_user_id)
         self.assertEqual(service_user_name, ctx.service_user_name)
         self.assertEqual(service_user_domain_id, ctx.service_user_domain_id)
-        self.assertEqual(service_user_domain_name,
-                         ctx.service_user_domain_name)
+        self.assertEqual(
+            service_user_domain_name, ctx.service_user_domain_name
+        )
         self.assertEqual(service_project_id, ctx.service_project_id)
         self.assertEqual(service_project_name, ctx.service_project_name)
-        self.assertEqual(service_project_domain_id,
-                         ctx.service_project_domain_id)
-        self.assertEqual(service_project_domain_name,
-                         ctx.service_project_domain_name)
+        self.assertEqual(
+            service_project_domain_id, ctx.service_project_domain_id
+        )
+        self.assertEqual(
+            service_project_domain_name, ctx.service_project_domain_name
+        )
         self.assertEqual(service_roles, ctx.service_roles)
 
     def test_from_environ_no_roles(self):
@@ -338,37 +340,36 @@ class ContextTest(test_base.BaseTestCase):
         new = uuid.uuid4().hex
         override = uuid.uuid4().hex
 
-        environ = {'HTTP_X_USER': old,
-                   'HTTP_X_USER_ID': new}
+        environ = {'HTTP_X_USER': old, 'HTTP_X_USER_ID': new}
 
         ctx = context.RequestContext.from_environ(environ=environ)
         self.assertEqual(new, ctx.user_id)
 
         ctx = context.RequestContext.from_environ(
-            environ=environ, user_id=override,
+            environ=environ, user_id=override
         )
         self.assertEqual(override, ctx.user_id)
 
-        environ = {'HTTP_X_TENANT': old,
-                   'HTTP_X_PROJECT_ID': new}
+        environ = {'HTTP_X_TENANT': old, 'HTTP_X_PROJECT_ID': new}
 
         ctx = context.RequestContext.from_environ(environ=environ)
         self.assertEqual(new, ctx.project_id)
 
         ctx = context.RequestContext.from_environ(
-            environ=environ, project_id=override,
+            environ=environ, project_id=override
         )
         self.assertEqual(override, ctx.project_id)
 
-        environ = {'HTTP_X_TENANT_NAME': old,
-                   'HTTP_X_PROJECT_NAME': new}
+        environ = {'HTTP_X_TENANT_NAME': old, 'HTTP_X_PROJECT_NAME': new}
 
         ctx = context.RequestContext.from_environ(environ=environ)
         self.assertEqual(new, ctx.project_name)
 
     def test_from_environ_strip_roles(self):
-        environ = {'HTTP_X_ROLES': ' abc\t,\ndef\n,ghi\n\n',
-                   'HTTP_X_SERVICE_ROLES': ' jkl\t,\nmno\n,pqr\n\n'}
+        environ = {
+            'HTTP_X_ROLES': ' abc\t,\ndef\n,ghi\n\n',
+            'HTTP_X_SERVICE_ROLES': ' jkl\t,\nmno\n,pqr\n\n',
+        }
         ctx = context.RequestContext.from_environ(environ=environ)
         self.assertEqual(['abc', 'def', 'ghi'], ctx.roles)
         self.assertEqual(['jkl', 'mno', 'pqr'], ctx.service_roles)
@@ -491,8 +492,7 @@ class ContextTest(test_base.BaseTestCase):
         self.assertEqual(show_deleted, d['show_deleted'])
         self.assertEqual(request_id, d['request_id'])
         self.assertEqual(resource_uuid, d['resource_uuid'])
-        user_identity = "{} {} {} {} {}".format(
-            user_id, project_id, domain_id, user_domain_id, project_domain_id)
+        user_identity = f"{user_id} {project_id} {domain_id} {user_domain_id} {project_domain_id}"
         self.assertEqual(user_identity, d['user_identity'])
         self.assertEqual([], d['roles'])
 
@@ -535,7 +535,8 @@ class ContextTest(test_base.BaseTestCase):
             auth_token_info={'auth_token': 'topsecret'},
             service_token="1234567",
             auth_token="8901234",
-            user_id=userid)
+            user_id=userid,
+        )
         safe_ctxt = ctx.redacted_copy()
         self.assertIsNone(safe_ctxt.auth_token_info)
         self.assertIsNone(safe_ctxt.service_token)

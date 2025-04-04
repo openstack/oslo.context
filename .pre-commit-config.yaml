@@ -18,20 +18,17 @@ repos:
       - id: debug-statements
       - id: check-yaml
         files: .*\.(yaml|yml)$
-  - repo: https://github.com/PyCQA/bandit
-    rev: 1.7.10
+  - repo: https://github.com/astral-sh/ruff-pre-commit
+    rev: v0.11.3
     hooks:
-    - id: bandit
-      args: ['-x', 'tests']
-  - repo: local
+      - id: ruff
+        args: ['--fix', '--unsafe-fixes']
+      - id: ruff-format
+  - repo: https://opendev.org/openstack/hacking
+    rev: 7.0.0
     hooks:
-      - id: flake8
-        name: flake8
-        additional_dependencies:
-          - hacking>=6.1.0,<6.2.0
-        language: python
-        entry: flake8
-        files: '^.*\.py$'
+      - id: hacking
+        additional_dependencies: []
         exclude: '^(doc|releasenotes)/.*$'
   - repo: https://github.com/pre-commit/mirrors-mypy
     rev: v1.15.0
@@ -43,8 +40,3 @@ repos:
             | doc/.*
             | releasenotes/.*
           )
-  - repo: https://github.com/asottile/pyupgrade
-    rev: v3.18.0
-    hooks:
-      - id: pyupgrade
-        args: [--py3-only]

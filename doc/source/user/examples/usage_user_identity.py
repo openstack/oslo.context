@@ -33,7 +33,9 @@ CONF = cfg.CONF
 DOMAIN = "demo"
 
 logging.register_options(CONF)
-CONF.logging_user_identity_format = "%(user_id)s/%(project_id)s@%(project_domain)s"
+CONF.logging_user_identity_format = (
+    "%(user_id)s/%(project_id)s@%(project_domain)s"
+)
 logging.setup(CONF, DOMAIN)
 
 LOG = logging.getLogger(__name__)
@@ -41,8 +43,10 @@ LOG = logging.getLogger(__name__)
 LOG.info("Message without context")
 # ids in Openstack are 32 characters long
 # For readability a shorter id value is used
-context.RequestContext(request_id='req-abc',
-                       user_id='6ce90b4d',
-                       project_id='d6134462',
-                       project_domain_id='a6b9360e')
+context.RequestContext(
+    request_id='req-abc',
+    user_id='6ce90b4d',
+    project_id='d6134462',
+    project_domain_id='a6b9360e',
+)
 LOG.info("Message with context")
