@@ -147,37 +147,37 @@ class RequestContext:
 
     def __init__(
         self,
-        auth_token: ty.Optional[str] = None,
-        user_id: ty.Optional[str] = None,
-        project_id: ty.Optional[str] = None,
-        domain_id: ty.Optional[str] = None,
-        user_domain_id: ty.Optional[str] = None,
-        project_domain_id: ty.Optional[str] = None,
+        auth_token: str | None = None,
+        user_id: str | None = None,
+        project_id: str | None = None,
+        domain_id: str | None = None,
+        user_domain_id: str | None = None,
+        project_domain_id: str | None = None,
         is_admin: bool = False,
         read_only: bool = False,
         show_deleted: bool = False,
-        request_id: ty.Optional[str] = None,
-        resource_uuid: ty.Optional[str] = None,
+        request_id: str | None = None,
+        resource_uuid: str | None = None,
         overwrite: bool = True,
-        roles: ty.Optional[list[str]] = None,
-        user_name: ty.Optional[str] = None,
-        project_name: ty.Optional[str] = None,
-        domain_name: ty.Optional[str] = None,
-        user_domain_name: ty.Optional[str] = None,
-        project_domain_name: ty.Optional[str] = None,
+        roles: list[str] | None = None,
+        user_name: str | None = None,
+        project_name: str | None = None,
+        domain_name: str | None = None,
+        user_domain_name: str | None = None,
+        project_domain_name: str | None = None,
         is_admin_project: bool = True,
-        service_token: ty.Optional[str] = None,
-        service_user_id: ty.Optional[str] = None,
-        service_user_name: ty.Optional[str] = None,
-        service_user_domain_id: ty.Optional[str] = None,
-        service_user_domain_name: ty.Optional[str] = None,
-        service_project_id: ty.Optional[str] = None,
-        service_project_name: ty.Optional[str] = None,
-        service_project_domain_id: ty.Optional[str] = None,
-        service_project_domain_name: ty.Optional[str] = None,
-        service_roles: ty.Optional[list[str]] = None,
-        global_request_id: ty.Optional[str] = None,
-        system_scope: ty.Optional[str] = None,
+        service_token: str | None = None,
+        service_user_id: str | None = None,
+        service_user_name: str | None = None,
+        service_user_domain_id: str | None = None,
+        service_user_domain_name: str | None = None,
+        service_project_id: str | None = None,
+        service_project_name: str | None = None,
+        service_project_domain_id: str | None = None,
+        service_project_domain_name: str | None = None,
+        service_roles: list[str] | None = None,
+        global_request_id: str | None = None,
+        system_scope: str | None = None,
     ):
         """Initialize the RequestContext
 
@@ -466,7 +466,7 @@ def get_context_from_function_and_args(
     function: ty.Callable[..., ty.Any],
     args: list[ty.Any],
     kwargs: dict[str, ty.Any],
-) -> ty.Optional[RequestContext]:
+) -> RequestContext | None:
     """Find an arg of type RequestContext and return it.
 
     This is useful in a couple of decorators where we don't know much about the
@@ -488,7 +488,7 @@ def is_user_context(context: ty.Any) -> bool:
     return True
 
 
-def get_current() -> ty.Optional[RequestContext]:
+def get_current() -> RequestContext | None:
     """Return this thread's current context
 
     If no context is set, returns None
