@@ -29,7 +29,8 @@ classifiers = [
 ]
 
 [project.urls]
-Homepage = "https://docs.openstack.org/oslo.context/latest/"
+Homepage = "https://docs.openstack.org/oslo.context"
+Repository = "https://opendev.org/openstack/oslo.context"
 
 [tool.setuptools]
 packages = [
