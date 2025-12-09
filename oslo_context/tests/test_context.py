@@ -492,7 +492,10 @@ class ContextTest(test_base.BaseTestCase):
         self.assertEqual(show_deleted, d['show_deleted'])
         self.assertEqual(request_id, d['request_id'])
         self.assertEqual(resource_uuid, d['resource_uuid'])
-        user_identity = f"{user_id} {project_id} {domain_id} {user_domain_id} {project_domain_id}"
+        user_identity = (
+            f"{user_id} {project_id} {domain_id} {user_domain_id} "
+            f"{project_domain_id}"
+        )
         self.assertEqual(user_identity, d['user_identity'])
         self.assertEqual([], d['roles'])
 
