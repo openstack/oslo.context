@@ -238,7 +238,7 @@ class RequestContext:
         """Store the context in the current thread."""
         _request_store.context = self
 
-    def to_policy_values(self) -> _DeprecatedPolicyValues:
+    def to_policy_values(self) -> _MutableMapping:
         """A dictionary of context attributes to enforce policy with.
 
         oslo.policy enforcement requires a dictionary of attributes
