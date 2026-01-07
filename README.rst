@@ -3,8 +3,7 @@ Oslo Context Library
 ====================
 
 .. image:: https://governance.openstack.org/tc/badges/oslo.context.svg
-
-.. Change things from this point on
+    :target: https://governance.openstack.org/tc/reference/projects/oslo.html
 
 .. image:: https://img.shields.io/pypi/v/oslo.context
     :target: https://pypi.org/project/oslo.context/
