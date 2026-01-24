@@ -153,7 +153,7 @@ class RequestContext:
         domain_id: str | None = None,
         user_domain_id: str | None = None,
         project_domain_id: str | None = None,
-        is_admin: bool = False,
+        is_admin: bool | None = False,
         read_only: bool = False,
         show_deleted: bool = False,
         request_id: str | None = None,
@@ -186,12 +186,10 @@ class RequestContext:
         :param is_admin_project: Whether the specified project is specified in
                                  the token as the admin project. Defaults to
                                  True for backwards compatibility.
-        :type is_admin_project: bool
         :param system_scope: The system scope of a token. The value ``all``
                              represents the entire deployment system. A service
                              ID represents a specific service within the
                              deployment system.
-        :type system_scope: string
         """
         # setting to private variables to avoid triggering subclass properties
         self.user_id = user_id
@@ -207,7 +205,7 @@ class RequestContext:
         self.system_scope = system_scope
         self.user_domain_name = user_domain_name
         self.project_domain_name = project_domain_name
-        self.is_admin = is_admin
+        self._is_admin = is_admin
         self.is_admin_project = is_admin_project
         self.read_only = read_only
         self.show_deleted = show_deleted
@@ -233,6 +231,17 @@ class RequestContext:
 
         if overwrite or not get_current():
             self.update_store()
+
+    @property
+    def is_admin(self) -> bool | None:
+        # NOTE(tkajinam): Provide the property interface so that additional
+        # mechanism to detect its value from Context instance can be
+        # implemented by override
+        return self._is_admin
+
+    @is_admin.setter
+    def is_admin(self, value: bool | None) -> None:
+        self._is_admin = value
 
     def update_store(self) -> None:
         """Store the context in the current thread."""
