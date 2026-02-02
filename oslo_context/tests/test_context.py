@@ -248,6 +248,7 @@ class ContextTest(test_base.BaseTestCase):
             'HTTP_X_USER_ID': user_id,
             'HTTP_X_PROJECT_ID': project_id,
             'HTTP_X_DOMAIN_ID': domain_id,
+            'HTTP_X_DOMAIN_NAME': domain_name,
             'HTTP_X_USER_DOMAIN_ID': user_domain_id,
             'HTTP_X_PROJECT_DOMAIN_ID': project_domain_id,
             'HTTP_X_ROLES': ','.join(roles),
@@ -275,8 +276,9 @@ class ContextTest(test_base.BaseTestCase):
         self.assertEqual(user_id, ctx.user_id)
         self.assertEqual(user_name, ctx.user_name)
         self.assertEqual(project_id, ctx.project_id)
-        self.assertEqual(domain_id, ctx.domain_id)
         self.assertEqual(project_name, ctx.project_name)
+        self.assertEqual(domain_id, ctx.domain_id)
+        self.assertEqual(domain_name, ctx.domain_name)
         self.assertEqual(user_domain_id, ctx.user_domain_id)
         self.assertEqual(user_domain_name, ctx.user_domain_name)
         self.assertEqual(project_domain_id, ctx.project_domain_id)

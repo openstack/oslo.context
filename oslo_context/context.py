@@ -49,6 +49,7 @@ _ENVIRON_HEADERS: dict[str, list[str]] = {
     'user_id': ['HTTP_X_USER_ID', 'HTTP_X_USER'],
     'project_id': ['HTTP_X_PROJECT_ID', 'HTTP_X_TENANT_ID', 'HTTP_X_TENANT'],
     'domain_id': ['HTTP_X_DOMAIN_ID'],
+    'domain_name': ['HTTP_X_DOMAIN_NAME'],
     'system_scope': ['HTTP_OPENSTACK_SYSTEM_SCOPE'],
     'user_domain_id': ['HTTP_X_USER_DOMAIN_ID'],
     'project_domain_id': ['HTTP_X_PROJECT_DOMAIN_ID'],
