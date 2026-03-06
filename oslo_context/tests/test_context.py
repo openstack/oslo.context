@@ -38,7 +38,7 @@ class WarningsFixture(fixtures.Fixture):
         super().setUp()
         self._w = warnings.catch_warnings(record=True)
         self.log = self._w.__enter__()
-        self.addCleanup(self._w.__exit__)
+        self.addCleanup(self._w.__exit__)  # type: ignore
         warnings.simplefilter(self.action, self.category)
 
     def __len__(self):
