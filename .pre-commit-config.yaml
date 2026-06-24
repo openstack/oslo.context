@@ -32,6 +32,8 @@ repos:
     hooks:
     - id: bandit
       args: ['-x', 'tests']
+      additional_dependencies:
+        - pbr
   - repo: local
     hooks:
       - id: flake8
