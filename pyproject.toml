@@ -36,6 +36,19 @@ Repository = "https://opendev.org/openstack/oslo.context"
 [tool.setuptools.packages.find]
 include = ["oslo_context*"]
 
+[tool.coverage.run]
+source = [
+    "oslo_context"
+]
+branch = true
+omit = [
+    "oslo_context/tests/*"
+]
+
+[tool.coverage.report]
+ignore_errors = true
+show_missing = true
+
 [tool.mypy]
 python_version = "3.11"
 show_column_numbers = true
