@@ -33,8 +33,6 @@ import typing as ty
 import uuid
 import warnings
 
-import typing_extensions as ty_ext
-
 if ty.TYPE_CHECKING:
     _MutableMapping = collections.abc.MutableMapping[str, ty.Any]
 else:
@@ -350,7 +348,7 @@ class RequestContext:
         """
         return self.global_request_id or self.request_id
 
-    def redacted_copy(self, **kwargs: ty.Any) -> ty_ext.Self:
+    def redacted_copy(self, **kwargs: ty.Any) -> ty.Self:
         """Return a copy of the context with sensitive fields redacted.
 
         This is useful for creating a context that can be safely logged.
@@ -385,9 +383,7 @@ class RequestContext:
         )
 
     @classmethod
-    def from_dict(
-        cls, values: dict[str, ty.Any], **kwargs: ty.Any
-    ) -> ty_ext.Self:
+    def from_dict(cls, values: dict[str, ty.Any], **kwargs: ty.Any) -> ty.Self:
         """Construct a context object from a provided dictionary."""
         kwargs.setdefault('auth_token', values.get('auth_token'))
         kwargs.setdefault('user_id', values.get('user'))
@@ -420,7 +416,7 @@ class RequestContext:
     @classmethod
     def from_environ(
         cls, environ: dict[str, ty.Any], **kwargs: ty.Any
-    ) -> ty_ext.Self:
+    ) -> ty.Self:
         """Load a context object from a request environment.
 
         If keyword arguments are provided then they override the values in the
