@@ -41,6 +41,7 @@ source = [
     "oslo_context"
 ]
 branch = true
+parallel = true
 omit = [
     "oslo_context/tests/*"
 ]
