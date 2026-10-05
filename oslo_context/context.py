@@ -26,17 +26,12 @@ context or provide additional information in their specific WSGI pipeline
 or logging context.
 """
 
-import collections.abc
+from collections.abc import Callable, MutableMapping, Iterator
 import itertools
 import threading
-import typing as ty
+from typing import Any, Self
 import uuid
 import warnings
-
-if ty.TYPE_CHECKING:
-    _MutableMapping = collections.abc.MutableMapping[str, ty.Any]
-else:
-    _MutableMapping = collections.abc.MutableMapping
 
 _request_store = threading.local()
 
@@ -74,7 +69,7 @@ def generate_request_id() -> str:
     return f'req-{uuid.uuid4()}'
 
 
-class _DeprecatedPolicyValues(_MutableMapping):
+class _DeprecatedPolicyValues(MutableMapping[str, Any]):
     """A Dictionary that manages current and deprecated policy values.
 
     Anything added to this dictionary after initial creation is considered a
@@ -82,11 +77,11 @@ class _DeprecatedPolicyValues(_MutableMapping):
     these values as oslo.policy will do will trigger a DeprecationWarning.
     """
 
-    def __init__(self, data: dict[str, ty.Any]):
+    def __init__(self, data: dict[str, Any]):
         self._data = data
-        self._deprecated: dict[str, ty.Any] = {}
+        self._deprecated: dict[str, Any] = {}
 
-    def __getitem__(self, k: str) -> ty.Any:
+    def __getitem__(self, k: str) -> Any:
         try:
             return self._data[k]
         except KeyError:
@@ -107,13 +102,13 @@ class _DeprecatedPolicyValues(_MutableMapping):
 
         raise KeyError(k)
 
-    def __setitem__(self, k: str, v: ty.Any) -> None:
+    def __setitem__(self, k: str, v: Any) -> None:
         self._deprecated[k] = v
 
     def __delitem__(self, k: str) -> None:
         del self._deprecated[k]
 
-    def __iter__(self) -> ty.Iterator[ty.Any]:
+    def __iter__(self) -> Iterator[Any]:
         return iter(self._dict)
 
     def __len__(self) -> int:
@@ -126,7 +121,7 @@ class _DeprecatedPolicyValues(_MutableMapping):
         return self._dict.__repr__()
 
     @property
-    def _dict(self) -> dict[str, ty.Any]:
+    def _dict(self) -> dict[str, Any]:
         d = self._deprecated.copy()
         d.update(self._data)
         return d
@@ -249,7 +244,7 @@ class RequestContext:
         """Store the context in the current thread."""
         _request_store.context = self
 
-    def to_policy_values(self) -> _MutableMapping:
+    def to_policy_values(self) -> MutableMapping[str, Any]:
         """A dictionary of context attributes to enforce policy with.
 
         oslo.policy enforcement requires a dictionary of attributes
@@ -283,7 +278,7 @@ class RequestContext:
             }
         )
 
-    def to_dict(self) -> dict[str, ty.Any]:
+    def to_dict(self) -> dict[str, Any]:
         """Return a dictionary of context attributes."""
         user_idt = self.user_idt_format.format(
             user=self.user_id or '-',
@@ -313,7 +308,7 @@ class RequestContext:
             'is_admin_project': self.is_admin_project,
         }
 
-    def get_logging_values(self) -> dict[str, ty.Any]:
+    def get_logging_values(self) -> dict[str, Any]:
         """Return a dictionary of logging specific context attributes."""
         values = {
             'user_name': self.user_name,
@@ -348,7 +343,7 @@ class RequestContext:
         """
         return self.global_request_id or self.request_id
 
-    def redacted_copy(self, **kwargs: ty.Any) -> ty.Self:
+    def redacted_copy(self, **kwargs: Any) -> Self:
         """Return a copy of the context with sensitive fields redacted.
 
         This is useful for creating a context that can be safely logged.
@@ -383,7 +378,7 @@ class RequestContext:
         )
 
     @classmethod
-    def from_dict(cls, values: dict[str, ty.Any], **kwargs: ty.Any) -> ty.Self:
+    def from_dict(cls, values: dict[str, Any], **kwargs: Any) -> Self:
         """Construct a context object from a provided dictionary."""
         kwargs.setdefault('auth_token', values.get('auth_token'))
         kwargs.setdefault('user_id', values.get('user'))
@@ -414,9 +409,7 @@ class RequestContext:
         return cls(**kwargs)
 
     @classmethod
-    def from_environ(
-        cls, environ: dict[str, ty.Any], **kwargs: ty.Any
-    ) -> ty.Self:
+    def from_environ(cls, environ: dict[str, Any], **kwargs: Any) -> Self:
         """Load a context object from a request environment.
 
         If keyword arguments are provided then they override the values in the
@@ -472,9 +465,9 @@ def get_admin_context(show_deleted: bool = False) -> RequestContext:
 
 
 def get_context_from_function_and_args(
-    function: ty.Callable[..., ty.Any],
-    args: list[ty.Any],
-    kwargs: dict[str, ty.Any],
+    function: Callable[..., Any],
+    args: list[Any],
+    kwargs: dict[str, Any],
 ) -> RequestContext | None:
     """Find an arg of type RequestContext and return it.
 
@@ -488,7 +481,7 @@ def get_context_from_function_and_args(
     return None
 
 
-def is_user_context(context: ty.Any) -> bool:
+def is_user_context(context: Any) -> bool:
     """Indicates if the request context is a normal user."""
     if not context or not isinstance(context, RequestContext):
         return False
